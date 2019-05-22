@@ -26,14 +26,17 @@ public class StartActivity extends AppCompatActivity {
     private EditText usernameField;
     private EditText passwordField;
     private Button sendBtn;
-    private  RequestQueue requestQueue;
-    private  String url = "http://palaver.se.paluno.uni-due.de";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
+        // TODO: splash screen öffnen
+
+        // TODO: settings öffnen ... (if settings exists user+password, then login and change to main menu)
+
+        // dann den rest auslagern in "RegisterActivity"?
 
         usernameField = findViewById(R.id.start_username);
         passwordField = findViewById(R.id.start_password);
@@ -48,7 +51,7 @@ public class StartActivity extends AppCompatActivity {
                         .registerUser(JsonObjectWizard
                                 .registerUser(username, password), getApplicationContext());
 
-                // TODO: dann stage wechseln zum hauptmenü!
+                // TODO: dann stage wechseln zum login!
 
             }
         });

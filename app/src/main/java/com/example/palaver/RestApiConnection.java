@@ -38,7 +38,7 @@ public class RestApiConnection {
 
         final Context context = appContext;
         final String userString = user.toString();
-        String registerUrl = url+"/api/user/register";
+        String registerUrl = url + "/api/user/register";
 
         requestQueue = Volley.newRequestQueue(context);
 
@@ -47,7 +47,7 @@ public class RestApiConnection {
             public void onResponse(String response) {
                 try {
                     JSONObject serverResponse = new JSONObject(response);
-                    if (serverResponse.toString().contains("erfolgreich")) {
+                    if (serverResponse.get("MsgType") == 1) {
                         String erfolg = "Der Benutzer wurde erfolgreich angelegt!";
                         Toast.makeText(context, erfolg, Toast.LENGTH_LONG).show();
                     } else {
@@ -80,6 +80,20 @@ public class RestApiConnection {
         };
 
         requestQueue.add(stringRequest);
+
+    }
+
+    public static void loginUser(JSONObject user, Context appContext) {
+
+        // benutze /api/user/validate
+        // wenn richtig, dann write into settings
+
+    }
+
+    public static void logoutUser() {
+
+        // settings datei löschen und scene wechseln
+        // --> gehört also vielleicht nicht in diese klasse?
 
     }
 
