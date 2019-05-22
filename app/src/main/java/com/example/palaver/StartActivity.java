@@ -1,5 +1,6 @@
 package com.example.palaver;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -43,52 +44,15 @@ public class StartActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username = String.valueOf(usernameField.getText());
                 String password = String.valueOf(passwordField.getText());
-                registerUser(JsonObjectWizard.registerUser(username, password));
+                RestApiConnection
+                        .registerUser(JsonObjectWizard
+                                .registerUser(username, password), getApplicationContext());
+
+                // TODO: dann stage wechseln zum hauptmenü!
+
             }
         });
 
-
-    }
-    public  void registerUser(JSONObject user) {
-
-        JSONObject serverMessage = new JSONObject();
-        final String userString = user.toString();
-        String registerUrl = url+"/api/user/register";
-
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, registerUrl, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try {
-                    JSONObject serverResponse = new JSONObject(response);
-                    Toast.makeText(getApplicationContext(), serverResponse.toString(), Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    Toast.makeText(getApplicationContext(), "Server Error",  Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }) {
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                try {
-                    return userString == null ? null : userString.getBytes("utf-8");
-                } catch (UnsupportedEncodingException uee) {
-                    return null;
-                }
-            }
-        };
-
-        requestQueue.add(stringRequest);
 
     }
 
