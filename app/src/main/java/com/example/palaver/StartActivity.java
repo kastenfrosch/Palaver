@@ -17,7 +17,7 @@ public class StartActivity extends Activity {
         // launch according to credentials
         if (UserCredentials.checkLogin(getApplicationContext())) {
             // TODO: change stage/scene to main menu
-            Intent intent = new Intent(StartActivity.this, SplashActivity.class);
+            Intent intent = new Intent(StartActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         } else {

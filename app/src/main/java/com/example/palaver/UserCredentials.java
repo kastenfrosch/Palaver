@@ -15,10 +15,10 @@ public class UserCredentials {
 
         boolean hasLogin = false;
         SharedPreferences preferences = appContext
-                .getSharedPreferences(myPreferences, MODE_PRIVATE);
+                .getSharedPreferences("UserCredentials", MODE_PRIVATE);
 
-        if (preferences.getString(usernamePref, null) != null ||
-                preferences.getString(passwordPref, null) != null) {
+        if (preferences.getString("Username", null) != null ||
+                preferences.getString("Password", null) != null) {
             hasLogin = true;
         }
 
@@ -28,18 +28,18 @@ public class UserCredentials {
     public static void createLogin(String user, String password, Context appContext) {
 
         SharedPreferences preferences = appContext
-                .getSharedPreferences(myPreferences, MODE_PRIVATE);
+                .getSharedPreferences("UserCredentials", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
-        editor.putString(usernamePref, user);
-        editor.putString(passwordPref, password);
+        editor.putString("Username", user);
+        editor.putString("Password", password);
         editor.commit();
     }
 
     public static void logout(Context appContext) {
 
         SharedPreferences preferences = appContext
-                .getSharedPreferences(myPreferences, MODE_PRIVATE);
+                .getSharedPreferences("UserCredentials", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.clear();
@@ -50,16 +50,16 @@ public class UserCredentials {
 
     public static String getUsername(Context appContext) {
         SharedPreferences preferences = appContext
-                .getSharedPreferences(myPreferences, MODE_PRIVATE);
+                .getSharedPreferences("UserCredentials", MODE_PRIVATE);
 
-        return preferences.getString(usernamePref, null);
+        return preferences.getString("Username", null);
     }
 
     public static String getPassword(Context appContext) {
         SharedPreferences preferences = appContext
-                .getSharedPreferences(myPreferences, MODE_PRIVATE);
+                .getSharedPreferences("UserCredentials", MODE_PRIVATE);
 
-        return preferences.getString(passwordPref, null);
+        return preferences.getString("Password", null);
     }
 
 }

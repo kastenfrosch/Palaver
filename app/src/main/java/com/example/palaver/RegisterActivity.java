@@ -1,5 +1,6 @@
 package com.example.palaver;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,7 +12,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText usernameField;
     private EditText passwordField;
     private Button sendBtn;
-    private Button retrieveBtn;
+    private Button loginBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,9 +20,9 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         usernameField = findViewById(R.id.register_username);
-        passwordField = findViewById(R.id.register_password);
+        passwordField = findViewById(R.id.login_password);
         sendBtn = findViewById(R.id.register_send_btn);
-        retrieveBtn = findViewById(R.id.register_retrieve_btn);
+        loginBtn = findViewById(R.id.register_login_btn);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,22 +37,21 @@ public class RegisterActivity extends AppCompatActivity {
                 // creating preferences
                 UserCredentials.createLogin(username, password, getApplicationContext());
 
-                usernameField.getText().clear();
-                passwordField.getText().clear();
-
-                // TODO: dann stage wechseln zum login!
+                // dann stage wechseln zum login!
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
 
             }
         });
 
-        retrieveBtn.setOnClickListener(new View.OnClickListener() {
+        loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = UserCredentials.getPassword(getApplicationContext());
-                String password = UserCredentials.getPassword(getApplicationContext());
 
-                usernameField.setText(username);
-                passwordField.setText(password);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
 
             }
         });

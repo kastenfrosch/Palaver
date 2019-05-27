@@ -83,20 +83,15 @@ public class RestApiConnection {
 
     }
 
-    public static void loginUser(JSONObject user, Context appContext) {
+    public static boolean verifyUser(JSONObject user, Context appContext) {
+        boolean isVerified = false;
 
         // benutze /api/user/validate
-        // wenn richtig, dann write into settings
 
+        return isVerified;
     }
 
-    public static void logoutUser() {
-
-        // settings datei löschen und scene wechseln
-        // --> gehört also vielleicht nicht in diese klasse?
-
-    }
-
+    // some stuff to do
 
 
 }
