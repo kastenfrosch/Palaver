@@ -47,7 +47,7 @@ public class RestApiConnection {
             public void onResponse(String response) {
                 try {
                     JSONObject serverResponse = new JSONObject(response);
-                    if (serverResponse.get("MsgType") == 1) {
+                    if ((int)serverResponse.get("MsgType") == 1) {
                         String erfolg = "Der Benutzer wurde erfolgreich angelegt!";
                         Toast.makeText(context, erfolg, Toast.LENGTH_LONG).show();
                     } else {
