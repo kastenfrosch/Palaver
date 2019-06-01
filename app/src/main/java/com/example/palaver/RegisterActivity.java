@@ -12,7 +12,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText usernameField;
     private EditText passwordField;
     private Button sendBtn;
-    private Button loginBtn;
+    private Button registerBtn;
+    private Button logoutBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,18 +21,20 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         usernameField = findViewById(R.id.register_username);
-        passwordField = findViewById(R.id.login_password);
+        passwordField = findViewById(R.id.register_password);
         sendBtn = findViewById(R.id.register_send_btn);
-        loginBtn = findViewById(R.id.register_login_btn);
+        registerBtn = findViewById(R.id.register_login_btn);
+        logoutBtn = findViewById(R.id.register_logout_btn);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String username = String.valueOf(usernameField.getText());
                 String password = String.valueOf(passwordField.getText());
+
                 RestApiConnection
                         .registerUser(JsonObjectWizard
-                                .registerUser(username, password), getApplicationContext());
+                                .createUser(username, password), getApplicationContext());
 
 
                 // creating preferences
@@ -45,13 +48,23 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        loginBtn.setOnClickListener(new View.OnClickListener() {
+        registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
+
+            }
+        });
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // deleting preferences to log out
+                UserCredentials.logout(getApplicationContext());
 
             }
         });

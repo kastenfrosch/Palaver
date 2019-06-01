@@ -83,12 +83,57 @@ public class RestApiConnection {
 
     }
 
-    public static boolean verifyUser(JSONObject user, Context appContext) {
-        boolean isVerified = false;
+    public static boolean verifyPassword(JSONObject user, Context appContext) {
 
-        // benutze /api/user/validate
+        final boolean[] isVerified = new boolean[1];
+        final Context context = appContext;
+        final String userString = user.toString();
+        String verifyPasswordUrl = url + "/api/user/validate";
 
-        return isVerified;
+        requestQueue = Volley.newRequestQueue(context);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, verifyPasswordUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    isVerified[0] = false;
+                    JSONObject serverResponse = new JSONObject(response);
+                    if ((int)serverResponse.get("MsgType") == 1) {
+                        String successMessage = "Der Benutzer wurde erfolgreich validiert!";
+                        isVerified[0] = true;
+                        Toast.makeText(context, successMessage, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, serverResponse.toString(), Toast.LENGTH_LONG).show();
+                    }
+
+                } catch (JSONException e) {
+                    Toast.makeText(context, "Server Error",  Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                try {
+                    return userString == null ? null : userString.getBytes("utf-8");
+                } catch (UnsupportedEncodingException uee) {
+                    return null;
+                }
+            }
+        };
+
+        requestQueue.add(stringRequest);
+
+        return isVerified[0];
     }
 
     // some stuff to do
