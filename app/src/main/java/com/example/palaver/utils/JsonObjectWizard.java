@@ -1,4 +1,4 @@
-package com.example.palaver;
+package com.example.palaver.utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
