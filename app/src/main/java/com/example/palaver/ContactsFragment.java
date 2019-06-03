@@ -8,10 +8,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.palaver.utils.FABClickListener;
@@ -27,8 +31,7 @@ import java.util.List;
 
 public class ContactsFragment extends Fragment implements FABClickListener {
     private ListClickListener callback;
-    private LinearLayout contactsContainer;
-    private LayoutInflater inflater;
+    private ArrayAdapter<String> adapter;
 
     @Override
     public void onAttach(Context ctx) {
@@ -45,37 +48,34 @@ public class ContactsFragment extends Fragment implements FABClickListener {
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        this.inflater = inflater;
+        setHasOptionsMenu(true);
 
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
-        LinearLayout first = new LinearLayout(getContext());
-        first.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callback.onOptionClicked("" + getId());
-            }
-        });
+        this.adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
 
-        final LinearLayout contactsContainer = view.findViewById(R.id.contactsContainer);
-        this.contactsContainer = contactsContainer;
+        ListView lv = view.findViewById(R.id.contacts_listview);
+        lv.setAdapter(this.adapter);
+
         refreshContacts();
 
-        contactsContainer.addView(first);
 
         return view;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.add("Logout");
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     private void refreshContacts() {
-        contactsContainer.removeAllViews();
+        adapter.clear();
         RestApiConnection.getFriends(new ApiRequest(), new VolleyCallback() {
             @Override
             public void onSuccess(Object result) {
                 for(String s : (List<String>) result) {
-                    LinearLayout entry = (LinearLayout) inflater.inflate(R.layout.contact_ll, contactsContainer, true);
-                    TextView t = (TextView) inflater.inflate(R.layout.contact_tv, entry, false);
-                    t.setText(s);
-                    entry.addView(t);
+                    adapter.add(s);
                 }
             }
         });
