@@ -3,6 +3,7 @@ package com.example.palaver;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -18,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.palaver.activity.LoginActivity;
 import com.example.palaver.utils.FABClickListener;
 import com.example.palaver.utils.UserCredentials;
 import com.example.palaver.utils.Utils;
@@ -67,6 +70,21 @@ public class ContactsFragment extends Fragment implements FABClickListener {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.add("Logout");
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getTitle().toString()) {
+            case "Logout":
+                Utils.t("Logged out");
+                UserCredentials.logout();
+                Intent intent = new Intent(getContext(), LoginActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void refreshContacts() {

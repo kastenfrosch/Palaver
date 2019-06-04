@@ -32,13 +32,12 @@ public class MainActivity extends AppCompatActivity implements ListClickListener
             fragmentManager.beginTransaction().add(R.id.mainContainer, contacts).commit();
         }
 
-
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setCustomView(R.layout.actionbar);
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM);
+
 
     }
 
