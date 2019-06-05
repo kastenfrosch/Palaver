@@ -16,19 +16,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.palaver.activity.LoginActivity;
 import com.example.palaver.utils.FABClickListener;
 import com.example.palaver.utils.UserCredentials;
 import com.example.palaver.utils.Utils;
-import com.example.palaver.utils.api.AddFriendRequest;
-import com.example.palaver.utils.api.ApiRequest;
+import com.example.palaver.utils.api.MagicCallback;
+import com.example.palaver.utils.api.request.AddFriendApiRequest;
+import com.example.palaver.utils.api.request.ApiRequest;
 import com.example.palaver.utils.api.RestApiConnection;
 import com.example.palaver.utils.api.VoidCallback;
-import com.example.palaver.utils.api.VolleyCallback;
+import com.example.palaver.utils.api.ObjectCallback;
+import com.example.palaver.utils.api.request.GetFriendsApiRequest;
 
 import java.util.List;
 
@@ -89,14 +89,14 @@ public class ContactsFragment extends Fragment implements FABClickListener {
 
     private void refreshContacts() {
         adapter.clear();
-        RestApiConnection.getFriends(new ApiRequest(), new VolleyCallback() {
+        RestApiConnection.getFriends(new GetFriendsApiRequest(new MagicCallback<List<String>>() {
             @Override
-            public void onSuccess(Object result) {
-                for(String s : (List<String>) result) {
+            public void onSuccess(List<String> result) {
+                for(String s :  result) {
                     adapter.add(s);
                 }
             }
-        });
+        }));
     }
 
 
@@ -113,17 +113,17 @@ public class ContactsFragment extends Fragment implements FABClickListener {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                AddFriendRequest req = new AddFriendRequest();
-                req.setUsername(UserCredentials.getUsername());
-                req.setPassword(UserCredentials.getPassword());
-                req.setFriend(input.getText().toString());
-                RestApiConnection.addFriend(req, new VoidCallback() {
+                AddFriendApiRequest req = new AddFriendApiRequest(new MagicCallback<String>() {
                     @Override
-                    public void onSuccess() {
+                    public void onSuccess(String s) {
+                        Utils.t("Friend added.");
                         refreshContacts();
                     }
                 });
-                Utils.t("Adding friend " + input.getText().toString());
+                req.setUsername(UserCredentials.getUsername());
+                req.setPassword(UserCredentials.getPassword());
+                req.setFriend(input.getText().toString());
+                RestApiConnection.addFriend(req);
             }
         });
 
@@ -135,6 +135,5 @@ public class ContactsFragment extends Fragment implements FABClickListener {
         });
 
         builder.show();
-        Utils.t("FAB clicked");
     }
 }

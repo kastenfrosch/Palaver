@@ -1,14 +1,17 @@
-package com.example.palaver.utils.api;
+package com.example.palaver.utils.api.request;
 
 import com.example.palaver.utils.UserCredentials;
+import com.example.palaver.utils.api.MagicCallback;
 
-public class ApiRequest {
+public class ApiRequest<T> {
     private String username;
     private String password;
+    private MagicCallback<T> callback;
 
-    public ApiRequest() {
+    public ApiRequest(MagicCallback<T> callback) {
         username = UserCredentials.getUsername();
         password = UserCredentials.getPassword();
+        this.callback = callback;
     }
 
     public String getUsername() {
@@ -25,5 +28,9 @@ public class ApiRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public MagicCallback<T> getCallback() {
+        return this.callback;
     }
 }

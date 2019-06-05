@@ -2,22 +2,27 @@ package com.example.palaver.utils.api;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.palaver.activity.MainActivity;
 import com.example.palaver.utils.UserCredentials;
 import com.example.palaver.utils.Utils;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.example.palaver.utils.api.request.AddFriendApiRequest;
+import com.example.palaver.utils.api.request.GetAllMessagesApiRequest;
+import com.example.palaver.utils.api.request.GetFriendsApiRequest;
+import com.example.palaver.utils.api.request.SendMessageApiRequest;
+import com.example.palaver.utils.api.response.AddFriendApiResponse;
+import com.example.palaver.utils.api.response.GetFriendsApiResponse;
+import com.example.palaver.utils.api.response.SendMessageApiResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +65,7 @@ public class RestApiConnection {
                     Toast.makeText(context, "Server Error", Toast.LENGTH_LONG).show();
                 }
             }
-        }, new Response.ErrorListener() {
+        }, new ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show();
@@ -110,7 +115,7 @@ public class RestApiConnection {
                     Toast.makeText(context, "Server Error", Toast.LENGTH_LONG).show();
                 }
             }
-        }, new Response.ErrorListener() {
+        }, new ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show();
@@ -134,19 +139,17 @@ public class RestApiConnection {
         requestQueue.add(stringRequest);
     }
 
-    public static void addFriend(final AddFriendRequest data, final VoidCallback callback) {
+    public static void addFriend(final AddFriendApiRequest data) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/friends/add",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        ApiResponse r = getResponse(response, ApiResponse.class);
+                        AddFriendApiResponse r = Utils.deserialize(response, AddFriendApiResponse.class);
                         Utils.t(r.getInfo());
-                        if(callback != null) {
-                            callback.onSuccess();
-                        }
+                        data.getCallback().onSuccess(r.getData());
                     }
                 },
-                new Response.ErrorListener() {
+                new ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Utils.t("Could not add friend: " + error.getMessage());
@@ -160,25 +163,25 @@ public class RestApiConnection {
 
             @Override
             public byte[] getBody() {
-                return serialize(data);
+                return Utils.serialize(data);
             }
         };
 
         requestQueue.add(req);
     }
 
-    public static void getFriends(final ApiRequest data, final VolleyCallback callback) {
+    public static void getFriends(final GetFriendsApiRequest request) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/friends/get",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        GetFriendsApiResponse r = getResponse(response, GetFriendsApiResponse.class);
+                        GetFriendsApiResponse r = Utils.deserialize(response, GetFriendsApiResponse.class);
                         if (r.getMsgType() == 1) {
-                            callback.onSuccess(r.getData());
+                            request.getCallback().onSuccess(r.getData());
                         }
                     }
                 },
-                new Response.ErrorListener() {
+                new ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Utils.t("Could not get friends: " + error.getMessage());
@@ -191,10 +194,50 @@ public class RestApiConnection {
 
             @Override
             public byte[] getBody() throws AuthFailureError {
-                return serialize(data);
+                return Utils.serialize(request);
             }
         };
         requestQueue.add(req);
+    }
+
+    public static void sendMessage(final SendMessageApiRequest request, final ObjectCallback callback) {
+        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/message/send",
+                new Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        SendMessageApiResponse r = Utils.deserialize(response, SendMessageApiResponse.class);
+                        if(r.getMsgType() == 0) {
+                            Utils.t(r.getInfo());
+                        }
+                        else {
+                            callback.onSuccess(r.getData().getDateTime());
+                        }
+                    }
+                },
+                new ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Utils.t("shit broke yo");
+                    }
+                });
+        requestQueue.add(req);
+    }
+
+    public void getMessages(GetAllMessagesApiRequest request, final ObjectCallback callback) {
+        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/message/get",
+                new Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                },
+                new ErrorListener(){
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
     }
 
     private static void onVerifySuccess(JSONObject user, Context ctx) {
@@ -203,19 +246,6 @@ public class RestApiConnection {
         Intent intent = new Intent(ctx, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.startActivity(intent);
-    }
-
-    private static <T extends ApiResponse> T getResponse(String s, Class<T> clazz) {
-        GsonBuilder b = new GsonBuilder();
-        b.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE);
-        Gson gson = b.create();
-
-        return gson.fromJson(s, clazz);
-    }
-
-    private static byte[] serialize(Object obj) {
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-        return gson.toJson(obj).getBytes();
     }
 
     // some stuff to do

@@ -1,10 +1,10 @@
-package com.example.palaver.utils.api;
+package com.example.palaver.utils.api.response;
 
-public class ApiResponse {
+public class ApiResponse<T> {
 
     private int msgType;
     private String info;
-    protected Object data;
+    private T data;
 
     public int getMsgType() {
         return msgType;
@@ -14,7 +14,7 @@ public class ApiResponse {
         this.msgType = msgType;
     }
 
-    protected String getInfo() {
+    public String getInfo() {
         return info;
     }
 
@@ -22,11 +22,11 @@ public class ApiResponse {
         this.info = info;
     }
 
-    protected Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 }

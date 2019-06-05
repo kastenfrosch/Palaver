@@ -4,33 +4,24 @@ import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.palaver.ChatFragment;
 import com.example.palaver.ListClickListener;
 import com.example.palaver.ContactsFragment;
 import com.example.palaver.R;
 import com.example.palaver.utils.FABClickListener;
 
 public class MainActivity extends AppCompatActivity implements ListClickListener, FABClickListener {
-    FragmentManager fragmentManager;
-    ContactsFragment contacts;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        fragmentManager = getSupportFragmentManager();
-
-        contacts = new ContactsFragment();
-
-        if(savedInstanceState == null) {
-            fragmentManager.beginTransaction().add(R.id.mainContainer, contacts).commit();
-        }
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -49,7 +40,10 @@ public class MainActivity extends AppCompatActivity implements ListClickListener
 
     @Override
     public void onFABClicked(View view) {
-        contacts.onFABClicked(view);
+        ((ContactsFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_contacts)).onFABClicked(view);
     }
 
+    public void onSendClicked(View view) {
+        ((ChatFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_chat)).onSendClicked(view);
+    }
 }
