@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
+    tools:context="de.uni_due.paluno.se.palaver.activity.MainActivity"
+    android:id="@+id/fragment_contacts">
     <!-- android:layout_gravity="end|bottom" -->
 
     <android.support.design.widget.FloatingActionButton
@@ -15,7 +16,7 @@
         android:layout_marginEnd="355dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/circle"
-        android:onClick="onFABClicked"
+        android:onClick="onFabClicked"
         android:src="@drawable/ic_add_black_24dp"
         app:backgroundTint="@color/colorPrimary"
         app:fabSize="auto"

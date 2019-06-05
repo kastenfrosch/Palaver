@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:clipToPadding="false"
     android:focusableInTouchMode="true"
-    tools:context="com.example.palaver.activity.ChatActivity">
+    tools:context="de.uni_due.paluno.se.palaver.activity.ChatActivity">
 
     <ListView
         android:layout_width="match_parent"
