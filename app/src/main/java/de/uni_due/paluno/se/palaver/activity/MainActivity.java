@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,11 @@ import android.view.View;
 import de.uni_due.paluno.se.palaver.ChatFragment;
 import de.uni_due.paluno.se.palaver.ContactsFragment;
 import com.example.palaver.R;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+
+import de.uni_due.paluno.se.palaver.utils.PalaverFirebaseMessagingService;
 import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 
@@ -70,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add("Logout");
+        menu.add("Update push token");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -82,6 +89,17 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
                     UserCredentials.logout();
                     Intent intent = new Intent(this, LoginActivity.class);
                     startActivity(intent);
+                    break;
+                case "Update push token":
+                    Task<InstanceIdResult> instanceId = FirebaseInstanceId.getInstance().getInstanceId();
+                    if(!instanceId.isSuccessful()) {
+                        //Utils.t("Failed to update token");
+                        Utils.t("**" + instanceId.getException().getMessage());
+                        Log.d("*****", instanceId.getException().getMessage());
+                        break;
+                    }
+                    PalaverFirebaseMessagingService.updateTokenOnServer(instanceId.getResult().getToken());
+
                     break;
                 default:
                     break;

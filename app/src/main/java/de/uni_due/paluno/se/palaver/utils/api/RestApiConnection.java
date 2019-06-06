@@ -14,6 +14,7 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
 import de.uni_due.paluno.se.palaver.activity.MainActivity;
 import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 import de.uni_due.paluno.se.palaver.utils.Utils;
@@ -21,6 +22,7 @@ import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetAllMessagesApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.SendMessageApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.request.UpdatePushTokenApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.response.AddFriendApiResponse;
 import de.uni_due.paluno.se.palaver.utils.api.response.GetAllMessagesApiResponse;
 import de.uni_due.paluno.se.palaver.utils.api.response.GetFriendsApiResponse;
@@ -264,11 +266,38 @@ public class RestApiConnection {
 
             @Override
             public byte[] getBody() throws AuthFailureError {
-                Log.d("*****", new String(Utils.serialize(request)));
                 return Utils.serialize(request);
             }
         };
         ;
+        requestQueue.add(req);
+    }
+
+
+    public static void updatePushToken(final UpdatePushTokenApiRequest request) {
+        StringRequest req = new StringRequest(url + "/api/user/pushtoken",
+                new Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        request.getCallback().onSuccess(null);
+                    }
+                },
+                new ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("*******", error.getMessage());
+                    }
+                }) {
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return Utils.serialize(request);
+            }
+        };
         requestQueue.add(req);
     }
 

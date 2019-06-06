@@ -4,7 +4,6 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="splash_text">Messaging Application</string>
     <string name="placeholder">PLACEHOLDER</string>
-    <string name="message_hint">Message...</string>
     <string name="message_send">Send</string>
     <string name="message_hint">Message...</string>
 </resources>
