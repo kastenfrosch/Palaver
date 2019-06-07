@@ -1,6 +1,8 @@
 package de.uni_due.paluno.se.palaver.utils.api.request;
 
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
+import de.uni_due.paluno.se.palaver.utils.api.response.AddFriendApiResponse;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
 
 public class AddFriendApiRequest extends ApiRequest<String> {
 
@@ -8,6 +10,16 @@ public class AddFriendApiRequest extends ApiRequest<String> {
 
     public AddFriendApiRequest(MagicCallback<String> callback) {
         super(callback);
+    }
+
+    @Override
+    public String getApiEndpoint() {
+        return "/api/friends/add";
+    }
+
+    @Override
+    public Class<? extends ApiResponse> getResponseType() {
+        return AddFriendApiResponse.class;
     }
 
     public String getFriend() {

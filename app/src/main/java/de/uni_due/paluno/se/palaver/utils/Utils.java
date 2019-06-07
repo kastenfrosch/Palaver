@@ -7,6 +7,9 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import de.uni_due.paluno.se.palaver.utils.api.request.ApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
+
 public class Utils {
 
     private static Context ctx;
@@ -18,7 +21,7 @@ public class Utils {
         Toast.makeText(ctx, text, Toast.LENGTH_LONG).show();
     }
 
-    public static <T> T deserialize(String s, Class<T> clazz) {
+    public static <T extends ApiResponse> T deserializeApiResponse(String s, Class<T> clazz) {
         GsonBuilder b = new GsonBuilder();
         b.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE);
         Gson gson = b.create();

@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.palaver.R;
 
@@ -41,7 +44,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
-        this.adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
+        this.adapter = new ArrayAdapter<>(getContext(), R.layout.contact_list_entry, R.id.label);
 
         ListView lv = view.findViewById(R.id.contacts_listview);
         lv.setAdapter(this.adapter);
@@ -66,8 +69,53 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                 for (String s : result) {
                     adapter.add(s);
                 }
+                for(int i=0; i < adapter.getCount(); i++) {
+                    ConstraintLayout listEntry = (ConstraintLayout) adapter.getView(i,
+                            null,
+                            (ListView) getView().findViewById(R.id.contacts_listview)
+                    );
+                    final TextView unread = listEntry.findViewById(R.id.unread_message_count);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            unread.setVisibility(View.GONE);
+                        }
+                    });
+
+                }
             }
         }));
+    }
+
+    public void setUnread(String contact, String val) {
+        Log.d("*", "setUnread");
+        ConstraintLayout listEntry = (ConstraintLayout) adapter.getView(
+                adapter.getPosition(contact),
+                null,
+                (ListView) getView().findViewById(R.id.contacts_listview)
+        );
+
+        final TextView unread = listEntry.findViewById(R.id.unread_message_count);
+        unread.setText(val);
+        if (val.equals("0") && unread.getVisibility() == View.VISIBLE) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    unread.setVisibility(View.GONE);
+                }
+            });
+        } else {
+            Log.d("*", "set visible");
+            if (unread.getVisibility() != View.VISIBLE) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        unread.setVisibility(View.VISIBLE);
+                    }
+                });
+                Log.d("*", "visible now");
+            }
+        }
     }
 
     public void onFabClicked(View view) {

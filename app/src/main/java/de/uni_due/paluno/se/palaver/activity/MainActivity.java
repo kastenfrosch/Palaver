@@ -3,6 +3,7 @@ package de.uni_due.paluno.se.palaver.activity;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,12 +17,17 @@ import android.view.View;
 
 import de.uni_due.paluno.se.palaver.ChatFragment;
 import de.uni_due.paluno.se.palaver.ContactsFragment;
+
 import com.example.palaver.R;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 import de.uni_due.paluno.se.palaver.utils.PalaverFirebaseMessagingService;
+import de.uni_due.paluno.se.palaver.utils.PalaverPushMessage;
 import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 
@@ -49,9 +55,24 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM);
 
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             initUI();
         }
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+            @Override
+            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                if (!task.isSuccessful()) {
+                    Log.w("*****", "getInstanceId failed", task.getException());
+                    Utils.t("Failed to get Firebase InstanceId");
+                    return;
+                }
+                String token = task.getResult().getToken();
+                PalaverFirebaseMessagingService.updateTokenOnServer(token);
+            }
+        });
+
+        PalaverFirebaseMessagingService.setMainActivity(this);
 
     }
 
@@ -73,6 +94,17 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
         }
     }
 
+    public void onFirebasePushMessageReceived(PalaverPushMessage message) {
+        ContactsFragment contacts = (ContactsFragment) getSupportFragmentManager().findFragmentByTag(ContactsFragment.TAG);
+        ChatFragment chat = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
+        if (chat != null && chat.isVisible() && chat.getActiveContact().equals(message.getSender())) {
+            Log.d("*", "equals sender");
+            chat.fetchNewMessages();
+        } else {
+            contacts.setUnread(message.getSender(), "*");
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add("Logout");
@@ -91,20 +123,13 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
                     startActivity(intent);
                     break;
                 case "Update push token":
-                    Task<InstanceIdResult> instanceId = FirebaseInstanceId.getInstance().getInstanceId();
-                    if(!instanceId.isSuccessful()) {
-                        //Utils.t("Failed to update token");
-                        Utils.t("**" + instanceId.getException().getMessage());
-                        Log.d("*****", instanceId.getException().getMessage());
-                        break;
-                    }
-                    PalaverFirebaseMessagingService.updateTokenOnServer(instanceId.getResult().getToken());
-
+                    //the onSuccessListener that has been registered will call the serverside update
+                    FirebaseInstanceId.getInstance().getInstanceId();
                     break;
                 default:
                     break;
             }
-        } catch(NullPointerException ex) {
+        } catch (NullPointerException ex) {
             //probably has something to do with the back button, should be safe to ignore here
         }
         return super.onOptionsItemSelected(item);
@@ -124,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
 
         if (findViewById(R.id.container_single) != null) { //we're in smartphone mode
             ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
-            if(chatFragment == null) {
+            if (chatFragment == null) {
                 chatFragment = new ChatFragment();
             }
             Bundle args = new Bundle();

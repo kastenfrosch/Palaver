@@ -19,11 +19,13 @@ import de.uni_due.paluno.se.palaver.activity.MainActivity;
 import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.request.ApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetAllMessagesApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.SendMessageApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.UpdatePushTokenApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.response.AddFriendApiResponse;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
 import de.uni_due.paluno.se.palaver.utils.api.response.GetAllMessagesApiResponse;
 import de.uni_due.paluno.se.palaver.utils.api.response.GetFriendsApiResponse;
 import de.uni_due.paluno.se.palaver.utils.api.response.SendMessageApiResponse;
@@ -148,7 +150,7 @@ public class RestApiConnection {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        AddFriendApiResponse r = Utils.deserialize(response, AddFriendApiResponse.class);
+                        AddFriendApiResponse r = Utils.deserializeApiResponse(response, AddFriendApiResponse.class);
                         Utils.t(r.getInfo());
                         data
                                 .getCallback()
@@ -182,7 +184,7 @@ public class RestApiConnection {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        GetFriendsApiResponse r = Utils.deserialize(response, GetFriendsApiResponse.class);
+                        GetFriendsApiResponse r = Utils.deserializeApiResponse(response, GetFriendsApiResponse.class);
                         if (r.getMsgType() == 1) {
                             request.getCallback().onSuccess(r.getData());
                         }
@@ -212,7 +214,7 @@ public class RestApiConnection {
                 new Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        SendMessageApiResponse r = Utils.deserialize(response, SendMessageApiResponse.class);
+                        SendMessageApiResponse r = Utils.deserializeApiResponse(response, SendMessageApiResponse.class);
                         if (r.getMsgType() == 0) {
                             Utils.t(r.getInfo());
                         } else {
@@ -245,7 +247,7 @@ public class RestApiConnection {
                 new Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        GetAllMessagesApiResponse r = Utils.deserialize(response, GetAllMessagesApiResponse.class);
+                        GetAllMessagesApiResponse r = Utils.deserializeApiResponse(response, GetAllMessagesApiResponse.class);
                         if (r.getMsgType() == 1) {
                             request.getCallback().onSuccess(r.getData());
                         } else {
@@ -275,7 +277,7 @@ public class RestApiConnection {
 
 
     public static void updatePushToken(final UpdatePushTokenApiRequest request) {
-        StringRequest req = new StringRequest(url + "/api/user/pushtoken",
+        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/user/pushtoken",
                 new Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -285,7 +287,11 @@ public class RestApiConnection {
                 new ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e("*******", error.getMessage());
+                        Log.e("*******", "" + error.getCause());
+                        for (StackTraceElement e : error.getStackTrace()) {
+                            Log.e("* ", e.getClassName() + "#" + e.getLineNumber());
+                        }
+                        Log.e("**", new String(error.networkResponse.data), error);
                     }
                 }) {
             @Override
@@ -307,6 +313,36 @@ public class RestApiConnection {
         Intent intent = new Intent(ctx, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.startActivity(intent);
+    }
+
+    public static void execute(final ApiRequest request) {
+        StringRequest req = new StringRequest(Request.Method.POST, request.getFullApiEndpoint(),
+                new Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ApiResponse r = Utils.deserializeApiResponse(response, request.getResponseType());
+                        //noinspection unchecked
+                        request.getCallback().onSuccess(r.getData());
+                    }
+                },
+                new ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        request.getCallback().onError(error.getCause());
+                    }
+                }) {
+            @Override
+            public String getBodyContentType() {
+                return request.getContentType();
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return Utils.serialize(request);
+            }
+        };
+
+        requestQueue.add(req);
     }
 
     // some stuff to do
