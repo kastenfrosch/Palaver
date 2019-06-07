@@ -168,7 +168,7 @@ public class ChatFragment extends Fragment {
         text.getText().clear();
 
 
-        RestApiConnection.sendMessage(req);
+        RestApiConnection.execute(req);
 
     }
 

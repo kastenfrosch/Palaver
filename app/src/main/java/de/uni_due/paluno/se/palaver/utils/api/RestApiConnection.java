@@ -33,7 +33,7 @@ import de.uni_due.paluno.se.palaver.utils.api.response.SendMessageApiResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 
 public class RestApiConnection {
@@ -84,11 +84,7 @@ public class RestApiConnection {
 
             @Override
             public byte[] getBody() throws AuthFailureError {
-                try {
-                    return userString == null ? null : userString.getBytes("utf-8");
-                } catch (UnsupportedEncodingException uee) {
-                    return null;
-                }
+                return userString == null ? null : userString.getBytes(StandardCharsets.UTF_8);
             }
         };
 
@@ -134,17 +130,14 @@ public class RestApiConnection {
 
             @Override
             public byte[] getBody() throws AuthFailureError {
-                try {
-                    return userString == null ? null : userString.getBytes("utf-8");
-                } catch (UnsupportedEncodingException uee) {
-                    return null;
-                }
+                return userString == null ? null : userString.getBytes(StandardCharsets.UTF_8);
             }
         };
 
         requestQueue.add(stringRequest);
     }
 
+    @Deprecated
     public static void addFriend(final AddFriendApiRequest data) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/friends/add",
                 new Response.Listener<String>() {
@@ -179,6 +172,7 @@ public class RestApiConnection {
         requestQueue.add(req);
     }
 
+    @Deprecated
     public static void getFriends(final GetFriendsApiRequest request) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/friends/get",
                 new Response.Listener<String>() {
@@ -209,6 +203,7 @@ public class RestApiConnection {
         requestQueue.add(req);
     }
 
+    @Deprecated
     public static void sendMessage(final SendMessageApiRequest request) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/message/send",
                 new Listener<String>() {
@@ -242,6 +237,7 @@ public class RestApiConnection {
         requestQueue.add(req);
     }
 
+    @Deprecated
     public static void getMessages(final GetAllMessagesApiRequest request) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/message/get",
                 new Listener<String>() {
@@ -271,11 +267,11 @@ public class RestApiConnection {
                 return Utils.serialize(request);
             }
         };
-        ;
         requestQueue.add(req);
     }
 
 
+    @Deprecated
     public static void updatePushToken(final UpdatePushTokenApiRequest request) {
         StringRequest req = new StringRequest(Request.Method.POST, url + "/api/user/pushtoken",
                 new Listener<String>() {

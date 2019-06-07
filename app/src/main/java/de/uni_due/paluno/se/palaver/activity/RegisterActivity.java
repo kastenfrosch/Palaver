@@ -25,11 +25,11 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        usernameField = (EditText) findViewById(R.id.register_username);
-        passwordField = (EditText) findViewById(R.id.register_password);
-        sendBtn = (Button) findViewById(R.id.register_send_btn);
-        registerBtn = (Button) findViewById(R.id.register_login_btn);
-        logoutBtn = (Button) findViewById(R.id.register_logout_btn);
+        usernameField = findViewById(R.id.register_username);
+        passwordField = findViewById(R.id.register_password);
+        sendBtn = findViewById(R.id.register_send_btn);
+        registerBtn = findViewById(R.id.register_login_btn);
+        logoutBtn = findViewById(R.id.register_logout_btn);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override

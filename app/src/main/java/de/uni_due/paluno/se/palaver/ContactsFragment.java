@@ -63,7 +63,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
     private void refreshContacts() {
         adapter.clear();
-        RestApiConnection.getFriends(new GetFriendsApiRequest(new MagicCallback<List<String>>() {
+        RestApiConnection.execute(new GetFriendsApiRequest(new MagicCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> result) {
                 for (String s : result) {
@@ -140,7 +140,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                 req.setUsername(UserCredentials.getUsername());
                 req.setPassword(UserCredentials.getPassword());
                 req.setFriend(input.getText().toString());
-                RestApiConnection.addFriend(req);
+                RestApiConnection.execute(req);
             }
         });
 

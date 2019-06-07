@@ -1,7 +1,5 @@
 package de.uni_due.paluno.se.palaver.utils.api.request;
 
-import java.lang.reflect.Type;
-
 import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;

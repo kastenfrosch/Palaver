@@ -7,11 +7,9 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import de.uni_due.paluno.se.palaver.activity.MainActivity;
-import de.uni_due.paluno.se.palaver.utils.api.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
 import de.uni_due.paluno.se.palaver.utils.api.request.UpdatePushTokenApiRequest;
@@ -50,13 +48,6 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
 
     }
 
-
-
-    @Override
-    public void onDeletedMessages() {
-        super.onDeletedMessages();
-    }
-
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
@@ -71,6 +62,6 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             }
         });
         req.setPushToken(token);
-        RestApiConnection.updatePushToken(req);
+        RestApiConnection.execute(req);
     }
 }

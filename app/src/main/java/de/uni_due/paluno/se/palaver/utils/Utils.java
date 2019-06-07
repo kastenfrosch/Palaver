@@ -7,7 +7,6 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import de.uni_due.paluno.se.palaver.utils.api.request.ApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
 
 public class Utils {

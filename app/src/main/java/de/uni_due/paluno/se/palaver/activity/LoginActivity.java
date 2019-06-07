@@ -26,11 +26,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        usernameField = (EditText) findViewById(R.id.login_username);
-        passwordField = (EditText) findViewById(R.id.login_password);
-        sendBtn = (Button) findViewById(R.id.login_send_btn);
-        registerBtn = (Button) findViewById(R.id.login_register_btn);
-        getCredsBtn = (Button) findViewById(R.id.login_getcred_btn);
+        usernameField = findViewById(R.id.login_username);
+        passwordField = findViewById(R.id.login_password);
+        sendBtn = findViewById(R.id.login_send_btn);
+        registerBtn = findViewById(R.id.login_register_btn);
+        getCredsBtn = findViewById(R.id.login_getcred_btn);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
