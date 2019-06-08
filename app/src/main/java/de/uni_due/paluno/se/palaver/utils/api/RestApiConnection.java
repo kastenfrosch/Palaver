@@ -18,17 +18,8 @@ import com.android.volley.toolbox.Volley;
 import de.uni_due.paluno.se.palaver.activity.MainActivity;
 import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
-import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.ApiRequest;
-import de.uni_due.paluno.se.palaver.utils.api.request.GetAllMessagesApiRequest;
-import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
-import de.uni_due.paluno.se.palaver.utils.api.request.SendMessageApiRequest;
-import de.uni_due.paluno.se.palaver.utils.api.request.UpdatePushTokenApiRequest;
-import de.uni_due.paluno.se.palaver.utils.api.response.AddFriendApiResponse;
 import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
-import de.uni_due.paluno.se.palaver.utils.api.response.GetAllMessagesApiResponse;
-import de.uni_due.paluno.se.palaver.utils.api.response.GetFriendsApiResponse;
-import de.uni_due.paluno.se.palaver.utils.api.response.SendMessageApiResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,13 +33,12 @@ public class RestApiConnection {
     private static Context ctx;
     private static String url = "http://palaver.se.paluno.uni-due.de";
 
-    // TODO: hier kommen alle methoden rein wie login, logout, register, etc.
-
     public static void init(Context _ctx) {
         requestQueue = Volley.newRequestQueue(_ctx);
         ctx = _ctx;
     }
 
+    //TODO: replace with Request/Response pattern, called from ??
     public static void registerUser(JSONObject user) {
 
         final Context context = ctx;
@@ -87,11 +77,11 @@ public class RestApiConnection {
                 return userString == null ? null : userString.getBytes(StandardCharsets.UTF_8);
             }
         };
-
         requestQueue.add(stringRequest);
 
     }
 
+    //TODO: replace with Request/Response pattern, called from UserPrefs
     public static void verifyPassword(final JSONObject user) {
 
         final Context context = ctx;
@@ -137,172 +127,7 @@ public class RestApiConnection {
         requestQueue.add(stringRequest);
     }
 
-    @Deprecated
-    public static void addFriend(final AddFriendApiRequest data) {
-        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/friends/add",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        AddFriendApiResponse r = Utils.deserializeApiResponse(response, AddFriendApiResponse.class);
-                        Utils.t(r.getInfo());
-                        data
-                                .getCallback()
-                                .onSuccess(
-                                        r.getData());
-                    }
-                },
-                new ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Utils.t("Could not add friend: " + error.getMessage());
-                    }
-                }) {
-
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() {
-                return Utils.serialize(data);
-            }
-        };
-
-        requestQueue.add(req);
-    }
-
-    @Deprecated
-    public static void getFriends(final GetFriendsApiRequest request) {
-        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/friends/get",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        GetFriendsApiResponse r = Utils.deserializeApiResponse(response, GetFriendsApiResponse.class);
-                        if (r.getMsgType() == 1) {
-                            request.getCallback().onSuccess(r.getData());
-                        }
-                    }
-                },
-                new ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Utils.t("Could not get friends: " + error.getMessage());
-                    }
-                }) {
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                return Utils.serialize(request);
-            }
-        };
-        requestQueue.add(req);
-    }
-
-    @Deprecated
-    public static void sendMessage(final SendMessageApiRequest request) {
-        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/message/send",
-                new Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        SendMessageApiResponse r = Utils.deserializeApiResponse(response, SendMessageApiResponse.class);
-                        if (r.getMsgType() == 0) {
-                            Utils.t(r.getInfo());
-                        } else {
-                            request.getCallback().onSuccess(r.getData());
-                        }
-                    }
-                },
-                new ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Utils.t("shit broke yo");
-                    }
-                }
-        ) {
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                return Utils.serialize(request);
-            }
-        };
-        requestQueue.add(req);
-    }
-
-    @Deprecated
-    public static void getMessages(final GetAllMessagesApiRequest request) {
-        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/message/get",
-                new Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        GetAllMessagesApiResponse r = Utils.deserializeApiResponse(response, GetAllMessagesApiResponse.class);
-                        if (r.getMsgType() == 1) {
-                            request.getCallback().onSuccess(r.getData());
-                        } else {
-                            Utils.t(r.getInfo());
-                        }
-                    }
-                },
-                new ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Utils.t("sum tin wen wong");
-                    }
-                }) {
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                return Utils.serialize(request);
-            }
-        };
-        requestQueue.add(req);
-    }
-
-
-    @Deprecated
-    public static void updatePushToken(final UpdatePushTokenApiRequest request) {
-        StringRequest req = new StringRequest(Request.Method.POST, url + "/api/user/pushtoken",
-                new Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        request.getCallback().onSuccess(null);
-                    }
-                },
-                new ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("*******", "" + error.getCause());
-                        for (StackTraceElement e : error.getStackTrace()) {
-                            Log.e("* ", e.getClassName() + "#" + e.getLineNumber());
-                        }
-                        Log.e("**", new String(error.networkResponse.data), error);
-                    }
-                }) {
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() throws AuthFailureError {
-                return Utils.serialize(request);
-            }
-        };
-        requestQueue.add(req);
-    }
-
+    //TODO: find out where this is called from and replace it with the Request/Response pattern
     private static void onVerifySuccess(JSONObject user, Context ctx) {
         UserPrefs.createLogin(user);
 
