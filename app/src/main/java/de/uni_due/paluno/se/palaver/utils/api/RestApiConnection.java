@@ -16,7 +16,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import de.uni_due.paluno.se.palaver.activity.MainActivity;
-import de.uni_due.paluno.se.palaver.utils.UserCredentials;
+import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.ApiRequest;
@@ -304,7 +304,7 @@ public class RestApiConnection {
     }
 
     private static void onVerifySuccess(JSONObject user, Context ctx) {
-        UserCredentials.createLogin(user);
+        UserPrefs.createLogin(user);
 
         Intent intent = new Intent(ctx, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

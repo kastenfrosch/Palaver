@@ -9,8 +9,8 @@ import android.widget.EditText;
 
 import com.example.palaver.R;
 import de.uni_due.paluno.se.palaver.utils.JsonObjectWizard;
+import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
-import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -43,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
 
 
                 // creating preferences
-                UserCredentials.createLogin(username, password);
+                UserPrefs.createLogin(username, password);
 
                 // dann stage wechseln zum login!
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 // deleting preferences to log out
-                UserCredentials.logout();
+                UserPrefs.logout();
 
             }
         });

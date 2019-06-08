@@ -23,6 +23,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="10dp"
         android:padding="5dp"
-        android:textColor="#FFFFFF"/>
-
+        android:text="!!!!"
+        android:textColor="#FFFFFF"
+        android:visibility="visible" />
 </android.support.constraint.ConstraintLayout>

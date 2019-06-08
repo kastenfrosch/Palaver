@@ -15,6 +15,7 @@
         android:supportsRtl="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        android:hardwareAccelerated="false"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="de.uni_due.paluno.se.palaver.activity.LoginActivity" />
         <activity android:name="de.uni_due.paluno.se.palaver.activity.RegisterActivity" /> <!-- ist  das wichtig? -->

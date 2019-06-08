@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.example.palaver.R;
 
-import de.uni_due.paluno.se.palaver.utils.UserCredentials;
+import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
@@ -57,7 +57,7 @@ public class ChatFragment extends Fragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         RelativeLayout rl;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //the SDF still shits itself if I add optional ms ( [.SSS] )
-        if (m.getSender().equalsIgnoreCase(UserCredentials.getUsername())) {
+        if (m.getSender().equalsIgnoreCase(UserPrefs.getUsername())) {
             rl = (RelativeLayout) inflater.inflate(R.layout.my_message, null);
             TextView message = rl.findViewById(R.id.message_body);
             if (m.getMimetype().equals("text/plain")) {
@@ -149,7 +149,7 @@ public class ChatFragment extends Fragment {
             public void onSuccess(DateTimeContainer dateTimeContainer) {
                 Utils.t("Message @ " + dateTimeContainer.getDateTime());
                 ChatMessage message = new ChatMessage();
-                message.setSender(UserCredentials.getUsername());
+                message.setSender(UserPrefs.getUsername());
                 message.setRecipient(contact);
                 message.setMimetype("text/plain");
                 message.setData(msgText);
@@ -157,8 +157,8 @@ public class ChatFragment extends Fragment {
                 scrollToBottom();
             }
         });
-        req.setUsername(UserCredentials.getUsername());
-        req.setPassword(UserCredentials.getPassword());
+        req.setUsername(UserPrefs.getUsername());
+        req.setPassword(UserPrefs.getPassword());
         req.setMimetype("text/plain");
         req.setRecipient(contact);
         req.setData(msgText);

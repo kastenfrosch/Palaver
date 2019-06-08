@@ -24,9 +24,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import de.uni_due.paluno.se.palaver.custom.ContactListEntry;
 import de.uni_due.paluno.se.palaver.utils.PalaverFirebaseMessagingService;
 import de.uni_due.paluno.se.palaver.utils.PalaverPushMessage;
-import de.uni_due.paluno.se.palaver.utils.UserCredentials;
+import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 
 public class MainActivity extends AppCompatActivity implements ContactsFragment.OnContactSelectedListener, FragmentManager.OnBackStackChangedListener {
@@ -116,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
             switch (item.getTitle().toString()) {
                 case "Logout":
                     Utils.t("Logged out");
-                    UserCredentials.logout();
+                    UserPrefs.logout();
                     Intent intent = new Intent(this, LoginActivity.class);
                     startActivity(intent);
                     break;
@@ -142,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     }
 
     @Override
-    public void onContactSelected(String contact) {
+    public void onContactSelected(ContactListEntry contact) {
         FragmentManager fm = getSupportFragmentManager();
 
         if (findViewById(R.id.container_single) != null) { //we're in smartphone mode
@@ -151,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
                 chatFragment = new ChatFragment();
             }
             Bundle args = new Bundle();
-            args.putString("contact", contact);
+            args.putString("contact", contact.getName());
             chatFragment.setArguments(args);
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_from_left);
@@ -160,8 +161,11 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
             transaction.commit();
         } else {
             ChatFragment chatFragment = (ChatFragment) fm.findFragmentByTag(ChatFragment.TAG);
-            chatFragment.updateContact(contact);
+            chatFragment.updateContact(contact.getName());
         }
+
+        ContactsFragment contacts = (ContactsFragment) fm.findFragmentByTag(ContactsFragment.TAG);
+        contacts.setUnread(contact.getName(), "0");
     }
 
     @Override

@@ -9,9 +9,9 @@ import org.json.JSONObject;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class UserCredentials {
+public class UserPrefs {
 
-    private static String myPreferences = "UserCredentials";
+    private static String myPreferences = "UserPrefs";
     private static String usernamePref = "Username";
     private static String passwordPref = "Password";
     private static Context ctx;

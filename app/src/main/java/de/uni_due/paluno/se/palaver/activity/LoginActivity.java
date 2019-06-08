@@ -10,8 +10,8 @@ import android.widget.Toast;
 
 import com.example.palaver.R;
 import de.uni_due.paluno.se.palaver.utils.JsonObjectWizard;
+import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
-import de.uni_due.paluno.se.palaver.utils.UserCredentials;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -71,9 +71,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (UserCredentials.checkLogin()) {
-                    usernameField.setText(UserCredentials.getUsername());
-                    passwordField.setText(UserCredentials.getPassword());
+                if (UserPrefs.checkLogin()) {
+                    usernameField.setText(UserPrefs.getUsername());
+                    passwordField.setText(UserPrefs.getPassword());
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Es sind keine Login-Daten vorhanden!", Toast.LENGTH_LONG).show();

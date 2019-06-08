@@ -4,35 +4,36 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.palaver.R;
 
-import de.uni_due.paluno.se.palaver.utils.UserCredentials;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import de.uni_due.paluno.se.palaver.custom.ContactListEntry;
+import de.uni_due.paluno.se.palaver.custom.ContactsArrayAdapter;
+import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
-import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
-
-import java.util.List;
 
 public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener {
     public static final String TAG = "FRAGMENT_CONTACTS";
-    private ArrayAdapter<String> adapter;
+    private ContactsArrayAdapter adapter;
+    private Map<String, String> notifications = new HashMap<>();
     private OnContactSelectedListener contactSelectedListener;
 
 
@@ -44,7 +45,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
 
-        this.adapter = new ArrayAdapter<>(getContext(), R.layout.contact_list_entry, R.id.label);
+        this.adapter = new ContactsArrayAdapter(getContext(), R.layout.contact_list_entry);
 
         ListView lv = view.findViewById(R.id.contacts_listview);
         lv.setAdapter(this.adapter);
@@ -58,6 +59,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.add("isDirty");
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -67,55 +69,33 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
             @Override
             public void onSuccess(List<String> result) {
                 for (String s : result) {
-                    adapter.add(s);
+                    adapter.add(new ContactListEntry(s, "0"));
+
+                    /**************************/
+
                 }
-                for(int i=0; i < adapter.getCount(); i++) {
-                    ConstraintLayout listEntry = (ConstraintLayout) adapter.getView(i,
+                /*for (int i = 0; i < adapter.getCount(); i++) {
+                    ConstraintLayout listEntry = (ConstraintLayout) adapter.getView(
+                            i,
                             null,
                             (ListView) getView().findViewById(R.id.contacts_listview)
                     );
                     final TextView unread = listEntry.findViewById(R.id.unread_message_count);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            unread.setVisibility(View.GONE);
-                        }
-                    });
-
-                }
+                    unread.setVisibility(View.INVISIBLE);
+                }*/
             }
         }));
     }
 
-    public void setUnread(String contact, String val) {
-        Log.d("*", "setUnread");
-        ConstraintLayout listEntry = (ConstraintLayout) adapter.getView(
-                adapter.getPosition(contact),
-                null,
-                (ListView) getView().findViewById(R.id.contacts_listview)
-        );
 
-        final TextView unread = listEntry.findViewById(R.id.unread_message_count);
-        unread.setText(val);
-        if (val.equals("0") && unread.getVisibility() == View.VISIBLE) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    unread.setVisibility(View.GONE);
-                }
-            });
-        } else {
-            Log.d("*", "set visible");
-            if (unread.getVisibility() != View.VISIBLE) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        unread.setVisibility(View.VISIBLE);
-                    }
-                });
-                Log.d("*", "visible now");
+    public void setUnread(String contact, String val) {
+        this.adapter.getItem(this.adapter.getPositionByName(contact)).setUnread(val);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
             }
-        }
+        });
     }
 
     public void onFabClicked(View view) {
@@ -137,8 +117,8 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                         refreshContacts();
                     }
                 });
-                req.setUsername(UserCredentials.getUsername());
-                req.setPassword(UserCredentials.getPassword());
+                req.setUsername(UserPrefs.getUsername());
+                req.setPassword(UserPrefs.getPassword());
                 req.setFriend(input.getText().toString());
                 RestApiConnection.execute(req);
             }
@@ -159,7 +139,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        this.contactSelectedListener.onContactSelected((String) parent.getItemAtPosition(position));
+        this.contactSelectedListener.onContactSelected((ContactListEntry) parent.getItemAtPosition(position));
     }
 
     public void setOnContactSelectedListener(OnContactSelectedListener listener) {
@@ -167,6 +147,6 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     public interface OnContactSelectedListener {
-        void onContactSelected(String contact);
+        void onContactSelected(ContactListEntry contact);
     }
 }
