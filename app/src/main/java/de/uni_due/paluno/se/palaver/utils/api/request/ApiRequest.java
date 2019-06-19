@@ -3,6 +3,7 @@ package de.uni_due.paluno.se.palaver.utils.api.request;
 import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public abstract class ApiRequest<T> {
 
@@ -15,8 +16,8 @@ public abstract class ApiRequest<T> {
         if(getApiEndpoint() == null) {
             throw new IllegalArgumentException("getApiEndpoint() is null!");
         }
-        username = UserPrefs.getUsername();
-        password = UserPrefs.getPassword();
+        username = Storage.getInstance().getUsername();
+        password = Storage.getInstance().getPassword();
         this.callback = callback;
     }
 

@@ -15,20 +15,22 @@ import android.widget.TextView;
 
 import com.example.palaver.R;
 
-import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
-import de.uni_due.paluno.se.palaver.utils.api.ChatMessage;
+import de.uni_due.paluno.se.palaver.utils.storage.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
-import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetAllMessagesApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetMessagesWithOffsetApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.SendMessageApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.response.DateTimeContainer;
+import de.uni_due.paluno.se.palaver.utils.storage.ChatHistory;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class ChatFragment extends Fragment {
     public static final String TAG = "FRAGMENT_CHAT";
@@ -45,8 +47,8 @@ public class ChatFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
         if (savedInstanceState == null) {
-            if(getArguments() != null) {
-                updateContact(getArguments().getString("contact"));
+            if (getArguments() != null) {
+                initContact(getArguments().getString("contact"));
             }
         }
 
@@ -56,8 +58,8 @@ public class ChatFragment extends Fragment {
     private void addMessage(ChatMessage m) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         RelativeLayout rl;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); //the SDF still shits itself if I add optional ms ( [.SSS] )
-        if (m.getSender().equalsIgnoreCase(UserPrefs.getUsername())) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.GERMANY); //the SDF still shits itself if I add optional ms ( [.SSS] )
+        if (m.getSender().equalsIgnoreCase(Storage.getInstance().getUsername())) {
             rl = (RelativeLayout) inflater.inflate(R.layout.my_message, null);
             TextView message = rl.findViewById(R.id.message_body);
             if (m.getMimetype().equals("text/plain")) {
@@ -79,51 +81,84 @@ public class ChatFragment extends Fragment {
                 //remove milliseconds, we dont need those and the SDF will shit itself with them
                 String cut = m.getDateTime().replaceAll("\\.\\d+$", "");
                 Date d = sdf.parse(cut);
-                if(d.after(this.lastMessageTime)) {
+                if (d.after(this.lastMessageTime)) {
                     //this is done to avoid re-requesting the latest message
-                    d.setTime(d.getTime()+1000);
+                    d.setTime(d.getTime() + 1000);
                     this.lastMessageTime = d;
                 }
-            } catch(ParseException ex) {
+            } catch (ParseException ex) {
                 Log.w("*****", "failed to parse date " + m.getDateTime());
                 Log.w("*****", ex.getMessage());
             }
         }
-        ((LinearLayout) this.container.findViewById(R.id.chat_message_container)).addView(rl);
+        LinearLayout chatContainer = this.container.findViewById(R.id.chat_message_container);
+        if(chatContainer == null) {
+            Log.w("Palaver.ChatFragment", "chatContainer is null!!");
+        } else {
+            container.addView(rl);
+        }
     }
 
     public void fetchNewMessages() {
         GetMessagesWithOffsetApiRequest req = new GetMessagesWithOffsetApiRequest(new MagicCallback<List<ChatMessage>>() {
             @Override
             public void onSuccess(List<ChatMessage> chatMessages) {
-                if(chatMessages == null) return;
-                for(ChatMessage m : chatMessages) {
-                    addMessage(m);
-                }
-
-                scrollToBottom();
-            }
-        });
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        req.setOffset(sdf.format(this.lastMessageTime));
-        req.setRecipient(this.contact);
-        RestApiConnection.execute(req);
-    }
-
-    public void updateContact(String contact) {
-        GetAllMessagesApiRequest request = new GetAllMessagesApiRequest(new MagicCallback<List<ChatMessage>>() {
-            @Override
-            public void onSuccess(List<ChatMessage> chatMessages) {
-                ((LinearLayout) container.findViewById(R.id.chat_message_container)).removeAllViews();
+                if (chatMessages == null) return;
                 for (ChatMessage m : chatMessages) {
                     addMessage(m);
                 }
+
                 scrollToBottom();
             }
         });
-        request.setRecipient(contact);
-        RestApiConnection.execute(request);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.GERMANY);
+        req.setOffset(sdf.format(this.lastMessageTime));
+        req.setRecipient(this.contact);
+        PalaverApi.execute(req);
+    }
 
+    public void initContact(final String contact) {
+        LinearLayout messageContainer = container.findViewById(R.id.chat_message_container);
+        if(messageContainer != null) {
+            messageContainer.removeAllViews();
+        }
+
+        final ChatHistory history = Storage.I().getChatHistory(contact);
+        if (history == null) {
+            final ChatHistory newHistory = new ChatHistory();
+            GetAllMessagesApiRequest request = new GetAllMessagesApiRequest(new MagicCallback<List<ChatMessage>>() {
+                @Override
+                public void onSuccess(List<ChatMessage> chatMessages) {
+                    for (ChatMessage m : chatMessages) {
+                        addMessage(m);
+                        newHistory.addMessage(m);
+                    }
+                    scrollToBottom();
+                    Storage.I().getChatHistories().put(contact, newHistory);
+                }
+            });
+            request.setRecipient(contact);
+            PalaverApi.execute(request);
+        } else {
+            List<ChatMessage> cm = history.getMessages();
+            for(ChatMessage m : cm)  {
+                addMessage(m);
+            }
+
+            GetMessagesWithOffsetApiRequest req = new GetMessagesWithOffsetApiRequest(new MagicCallback<List<ChatMessage>>() {
+                @Override
+                public void onSuccess(List<ChatMessage> chatMessages) {
+                    for(ChatMessage m : chatMessages) {
+                        addMessage(m);
+                        history.addMessage(m);
+                    }
+                    scrollToBottom();
+                }
+            });
+            req.setRecipient(contact);
+            req.setOffset(Utils.stringifyDateTime(new Date(history.getLastMessageTime())));
+            PalaverApi.execute(req);
+        }
         this.contact = contact;
     }
 
@@ -135,7 +170,7 @@ public class ChatFragment extends Fragment {
         container.findViewById(R.id.chat_message_sv).post(new Runnable() {
             @Override
             public void run() {
-                ((ScrollView)container.findViewById(R.id.chat_message_sv)).fullScroll(ScrollView.FOCUS_DOWN);
+                ((ScrollView) container.findViewById(R.id.chat_message_sv)).fullScroll(ScrollView.FOCUS_DOWN);
             }
         });
     }
@@ -149,7 +184,7 @@ public class ChatFragment extends Fragment {
             public void onSuccess(DateTimeContainer dateTimeContainer) {
                 Utils.t("Message @ " + dateTimeContainer.getDateTime());
                 ChatMessage message = new ChatMessage();
-                message.setSender(UserPrefs.getUsername());
+                message.setSender(Storage.I().getUsername());
                 message.setRecipient(contact);
                 message.setMimetype("text/plain");
                 message.setData(msgText);
@@ -157,8 +192,8 @@ public class ChatFragment extends Fragment {
                 scrollToBottom();
             }
         });
-        req.setUsername(UserPrefs.getUsername());
-        req.setPassword(UserPrefs.getPassword());
+        req.setUsername(Storage.I().getUsername());
+        req.setPassword(Storage.I().getPassword());
         req.setMimetype("text/plain");
         req.setRecipient(contact);
         req.setData(msgText);
@@ -168,7 +203,7 @@ public class ChatFragment extends Fragment {
         text.getText().clear();
 
 
-        RestApiConnection.execute(req);
+        PalaverApi.execute(req);
 
     }
 

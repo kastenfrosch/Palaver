@@ -3,10 +3,17 @@ package de.uni_due.paluno.se.palaver.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.security.keystore.UserNotAuthenticatedException;
 
-import de.uni_due.paluno.se.palaver.utils.UserPrefs;
-import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+import java.net.UnknownHostException;
+
+import de.uni_due.paluno.se.palaver.utils.ContextAware;
 import de.uni_due.paluno.se.palaver.utils.Utils;
+import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
+import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
+import de.uni_due.paluno.se.palaver.utils.api.request.ValidateUserApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class StartActivity extends Activity {
 
@@ -14,24 +21,44 @@ public class StartActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //gotta init this first
-        RestApiConnection.init(getApplicationContext());
-        Utils.init(getApplicationContext());
-        UserPrefs.initialize(getApplicationContext());
+        ContextAware.initialize(getApplicationContext());
 
-        // launch according to credentials
-        if (UserPrefs.checkLogin()) {
-            // TODO: change stage/scene to main menu
-            Intent intent = new Intent(StartActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+        if (Storage.I().getUsername() != null && Storage.I().getPassword() != null) {
+            ValidateUserApiRequest req = new ValidateUserApiRequest(new MagicCallback<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Intent intent = new Intent(StartActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    if (t instanceof UnknownHostException) {
+                        onSuccess(null);
+                    } else {
+                        if (t != null) {
+                            Utils.t(t.getMessage());
+                        }
+                        goToSplash();
+                    }
+                }
+
+                @Override
+                public void onError(ApiResponse r) {
+                    onError(new UserNotAuthenticatedException("login error: " + r.getInfo()));
+                }
+            });
+            PalaverApi.execute(req);
         } else {
-            // TODO: splash screen öffnen und danach zum register/login
-            Intent intent = new Intent(StartActivity.this, SplashActivity.class);
-            startActivity(intent);
-            finish();
+            goToSplash();
         }
+    }
 
+    private void goToSplash() {
+        Intent intent = new Intent(StartActivity.this, SplashActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 }

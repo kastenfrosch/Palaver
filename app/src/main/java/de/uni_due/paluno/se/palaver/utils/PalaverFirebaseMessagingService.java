@@ -1,5 +1,9 @@
 package de.uni_due.paluno.se.palaver.utils;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -11,13 +15,14 @@ import java.util.List;
 
 import de.uni_due.paluno.se.palaver.activity.MainActivity;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
-import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.UpdatePushTokenApiRequest;
 
-public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
+public class PalaverFirebaseMessagingService extends FirebaseMessagingService  implements LifecycleObserver {
 
     private static MainActivity mainActivity;
     private static List<PalaverPushMessage> queuedMessages = new ArrayList<>();
+    private boolean inBackground = false;
 
     public static void setMainActivity(MainActivity mainActivity) {
         PalaverFirebaseMessagingService.mainActivity = mainActivity;
@@ -33,6 +38,7 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+        Log.d("*", "" + remoteMessage.getMessageType());
         if(remoteMessage.getData().size() > 0) {
             PalaverPushMessage pushMessage = new PalaverPushMessage();
             Log.d("*", remoteMessage.getData().toString());
@@ -41,7 +47,6 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             if(mainActivity == null) {
                 queuedMessages.add(pushMessage);
             } else {
-
                 mainActivity.onFirebasePushMessageReceived(pushMessage);
             }
         }
@@ -54,6 +59,22 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
         updateTokenOnServer(s);
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onAppBackgrounded() {
+        Log.d("*", "app in background now");
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onAppForegrounded() {
+        Log.d("*", "app in foreground now");
+    }
+
     public static void updateTokenOnServer(String token) {
         UpdatePushTokenApiRequest req = new UpdatePushTokenApiRequest(new MagicCallback<Void>() {
             @Override
@@ -62,6 +83,6 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             }
         });
         req.setPushToken(token);
-        RestApiConnection.execute(req);
+        PalaverApi.execute(req);
     }
 }

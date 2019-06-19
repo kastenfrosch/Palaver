@@ -9,9 +9,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.palaver.R;
-import de.uni_due.paluno.se.palaver.utils.JsonObjectWizard;
+
 import de.uni_due.paluno.se.palaver.utils.UserPrefs;
-import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+import de.uni_due.paluno.se.palaver.utils.Utils;
+import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
+import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
+import de.uni_due.paluno.se.palaver.utils.api.request.ValidateUserApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,24 +40,27 @@ public class LoginActivity extends AppCompatActivity {
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = String.valueOf(usernameField.getText());
-                String password = String.valueOf(passwordField.getText());
 
-                // RestApiConnection.createUser(JsonObjectWizard.registerUser(username, password), getApplicationContext());
+                ValidateUserApiRequest req = new ValidateUserApiRequest(new MagicCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void v) {
 
-                // check if user credentials are ok
-                RestApiConnection
-                        .verifyPassword(JsonObjectWizard
-                                .createUser(username, password));
-                    // creating preferences
-                    // TODO: change to main menu --> not yet written
-                    //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    //startActivity(intent);
-                    //finish();
+                        Storage.I().setUsername(usernameField.getText().toString());
+                        Storage.I().setPassword(passwordField.getText().toString());
+                        Storage.I().persist();
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
 
-
-
-
+                    @Override
+                    public void onError(ApiResponse r) {
+                        Utils.t(r.getInfo());
+                    }
+                });
+                req.setUsername(usernameField.getText().toString());
+                req.setPassword(passwordField.getText().toString());
+                PalaverApi.execute(req);
             }
         });
 

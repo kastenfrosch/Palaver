@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
             transaction.commit();
         } else {
             ChatFragment chatFragment = (ChatFragment) fm.findFragmentByTag(ChatFragment.TAG);
-            chatFragment.updateContact(contact.getName());
+            chatFragment.initContact(contact.getName());
         }
 
         ContactsFragment contacts = (ContactsFragment) fm.findFragmentByTag(ContactsFragment.TAG);

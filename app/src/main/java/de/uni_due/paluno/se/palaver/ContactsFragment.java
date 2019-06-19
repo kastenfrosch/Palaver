@@ -26,9 +26,10 @@ import de.uni_due.paluno.se.palaver.custom.ContactsArrayAdapter;
 import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
-import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener {
     public static final String TAG = "FRAGMENT_CONTACTS";
@@ -65,26 +66,21 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
     private void refreshContacts() {
         adapter.clear();
-        RestApiConnection.execute(new GetFriendsApiRequest(new MagicCallback<List<String>>() {
+        PalaverApi.execute(new GetFriendsApiRequest(new MagicCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> result) {
                 for (String s : result) {
                     adapter.add(new ContactListEntry(s, "0"));
-
-                    /**************************/
-
+                    //TODO: fetch possible new messages after adding the contaact and update the notification accordingly
                 }
-                /*for (int i = 0; i < adapter.getCount(); i++) {
-                    ConstraintLayout listEntry = (ConstraintLayout) adapter.getView(
-                            i,
-                            null,
-                            (ListView) getView().findViewById(R.id.contacts_listview)
-                    );
-                    final TextView unread = listEntry.findViewById(R.id.unread_message_count);
-                    unread.setVisibility(View.INVISIBLE);
-                }*/
             }
         }));
+        //we could either be offline or a friend was deleted but we still want to load the existing chat history
+        for(String contact : Storage.I().getChatHistories().keySet()) {
+            if(adapter.getPositionByName(contact) == -1) {
+                adapter.add(new ContactListEntry(contact, "0"));
+            }
+        }
     }
 
 
@@ -120,7 +116,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                 req.setUsername(UserPrefs.getUsername());
                 req.setPassword(UserPrefs.getPassword());
                 req.setFriend(input.getText().toString());
-                RestApiConnection.execute(req);
+                PalaverApi.execute(req);
             }
         });
 

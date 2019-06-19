@@ -8,9 +8,13 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.palaver.R;
-import de.uni_due.paluno.se.palaver.utils.JsonObjectWizard;
-import de.uni_due.paluno.se.palaver.utils.UserPrefs;
-import de.uni_due.paluno.se.palaver.utils.api.RestApiConnection;
+
+import de.uni_due.paluno.se.palaver.utils.Utils;
+import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
+import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
+import de.uni_due.paluno.se.palaver.utils.api.request.RegisterUserApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -34,22 +38,30 @@ public class RegisterActivity extends AppCompatActivity {
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = String.valueOf(usernameField.getText());
-                String password = String.valueOf(passwordField.getText());
+                final String username = String.valueOf(usernameField.getText());
+                final String password = String.valueOf(passwordField.getText());
 
-                RestApiConnection
-                        .registerUser(JsonObjectWizard
-                                .createUser(username, password));
+                RegisterUserApiRequest req = new RegisterUserApiRequest(new MagicCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void v) {
+                        Storage.getInstance().setUsername(username);
+                        Storage.getInstance().setPassword(password);
+                        Storage.getInstance().persist();
 
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
 
-                // creating preferences
-                UserPrefs.createLogin(username, password);
+                    }
 
-                // dann stage wechseln zum login!
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-
+                    @Override
+                    public void onError(ApiResponse r) {
+                        Utils.t(r.getInfo());
+                    }
+                });
+                req.setUsername(username);
+                req.setPassword(username);
+                PalaverApi.execute(req);
             }
         });
 
@@ -67,10 +79,8 @@ public class RegisterActivity extends AppCompatActivity {
         logoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // deleting preferences to log out
-                UserPrefs.logout();
-
+                Storage.getInstance().setUsername(null);
+                Storage.getInstance().setPassword(null);
             }
         });
 

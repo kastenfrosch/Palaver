@@ -1,6 +1,8 @@
-package de.uni_due.paluno.se.palaver.utils.api;
+package de.uni_due.paluno.se.palaver.utils.storage;
 
-public class ChatMessage {
+import de.uni_due.paluno.se.palaver.utils.Utils;
+
+public class ChatMessage implements Comparable<ChatMessage>{
     private String sender;
     private String recipient;
     private String mimetype;
@@ -45,5 +47,13 @@ public class ChatMessage {
 
     public void setDateTime(String dateTime) {
         this.dateTime = dateTime;
+    }
+
+    @Override
+    public int compareTo(ChatMessage o) {
+        return Long.compare(
+                Utils.parseDateTime(this.getDateTime()).getTime(),
+                Utils.parseDateTime(o.getDateTime()).getTime()
+        );
     }
 }
