@@ -29,6 +29,7 @@ import de.uni_due.paluno.se.palaver.utils.PalaverFirebaseMessagingService;
 import de.uni_due.paluno.se.palaver.utils.PalaverPushMessage;
 import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
+import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class MainActivity extends AppCompatActivity implements ContactsFragment.OnContactSelectedListener, FragmentManager.OnBackStackChangedListener {
 
@@ -116,10 +117,12 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
         try {
             switch (item.getTitle().toString()) {
                 case "Logout":
-                    Utils.t("Logged out");
-                    UserPrefs.logout();
+                    Storage.I().setUsername(null);
+                    Storage.I().setPassword(null);
+                    Storage.I().persist();
                     Intent intent = new Intent(this, LoginActivity.class);
                     startActivity(intent);
+                    Utils.t("Logged out");
                     break;
                 case "Update push token":
                     //the onSuccessListener that has been registered will call the serverside update

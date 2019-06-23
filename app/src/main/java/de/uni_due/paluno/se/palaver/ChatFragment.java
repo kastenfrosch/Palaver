@@ -95,7 +95,7 @@ public class ChatFragment extends Fragment {
         if(chatContainer == null) {
             Log.w("Palaver.ChatFragment", "chatContainer is null!!");
         } else {
-            container.addView(rl);
+            chatContainer.addView(rl);
         }
     }
 
