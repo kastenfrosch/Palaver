@@ -80,6 +80,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                 }
             }
         }));
+
         //we could either be offline or a friend was deleted but we still want to load the existing chat history
         for(String contact : Storage.I().getChatHistories().keySet()) {
             if(adapter.getPositionByName(contact) == -1) {
