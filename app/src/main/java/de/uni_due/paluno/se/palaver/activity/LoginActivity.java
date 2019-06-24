@@ -24,7 +24,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordField;
     private Button sendBtn;
     private Button registerBtn;
-    private Button getCredsBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,6 @@ public class LoginActivity extends AppCompatActivity {
         passwordField = findViewById(R.id.login_password);
         sendBtn = findViewById(R.id.login_send_btn);
         registerBtn = findViewById(R.id.login_register_btn);
-        getCredsBtn = findViewById(R.id.login_getcred_btn);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,22 +72,6 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-
-        getCredsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (UserPrefs.checkLogin()) {
-                    usernameField.setText(UserPrefs.getUsername());
-                    passwordField.setText(UserPrefs.getPassword());
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Es sind keine Login-Daten vorhanden!", Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
-
 
     }
 }
