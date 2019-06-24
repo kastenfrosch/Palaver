@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,10 +30,11 @@ import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.request.DeleteFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
 import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
-public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnCreateContextMenuListener {
     public static final String TAG = "FRAGMENT_CONTACTS";
     private ContactsArrayAdapter adapter;
     private Map<String, String> notifications = new HashMap<>();
@@ -51,6 +54,8 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
         ListView lv = view.findViewById(R.id.contacts_listview);
         lv.setAdapter(this.adapter);
         lv.setOnItemClickListener(this);
+
+        registerForContextMenu(lv);
 
         refreshContacts();
 
@@ -113,8 +118,8 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                         refreshContacts();
                     }
                 });
-                req.setUsername(UserPrefs.getUsername());
-                req.setPassword(UserPrefs.getPassword());
+                req.setUsername(Storage.I().getUsername());
+                req.setPassword(Storage.I().getPassword());
                 req.setFriend(input.getText().toString());
                 PalaverApi.execute(req);
             }
@@ -145,4 +150,39 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
     public interface OnContactSelectedListener {
         void onContactSelected(ContactListEntry contact);
     }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId()==R.id.contacts_listview) {
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.menu_delete, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch(item.getItemId()) {
+            case R.id.delete:
+                int pos = info.position;
+                ListView lv = getActivity().findViewById(R.id.contacts_listview);
+                ContactListEntry cle = (ContactListEntry) lv.getAdapter().getItem(pos);
+                DeleteFriendApiRequest req = new DeleteFriendApiRequest(new MagicCallback<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Utils.t("Friend removed from contacts.");
+                        refreshContacts();
+                    }
+                });
+                req.setUsername(Storage.I().getUsername());
+                req.setPassword(Storage.I().getPassword());
+                req.setFriend(cle.getName());
+                PalaverApi.execute(req);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
 }
