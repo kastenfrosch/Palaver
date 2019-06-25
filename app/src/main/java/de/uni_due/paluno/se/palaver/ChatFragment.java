@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.example.palaver.R;
 
+import de.uni_due.paluno.se.palaver.utils.LocationUtils;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.storage.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
@@ -204,9 +205,40 @@ public class ChatFragment extends Fragment {
 
         text.getText().clear();
 
-
         PalaverApi.execute(req);
 
+    }
+
+    public void sendLocation(double latitude, double longitude) {
+        latitude = LocationUtils.latitude;
+        longitude = LocationUtils.longitude;
+
+        String mapsUrl = "https://www.google.com/maps/search/?api=1&query=";
+        mapsUrl = mapsUrl + latitude + "," + longitude;
+
+        final String msgText = "Here is my location:\n" + mapsUrl;
+        SendMessageApiRequest req = new SendMessageApiRequest(new MagicCallback<DateTimeContainer>() {
+            @Override
+            public void onSuccess(DateTimeContainer dateTimeContainer) {
+                Utils.t("Message @ " + dateTimeContainer.getDateTime());
+                ChatMessage message = new ChatMessage();
+                message.setSender(Storage.I().getUsername());
+                message.setRecipient(contact);
+                message.setMimetype("text/plain");
+                message.setData(msgText);
+                addMessage(message);
+                scrollToBottom();
+            }
+        });
+        req.setUsername(Storage.I().getUsername());
+        req.setPassword(Storage.I().getPassword());
+        req.setMimetype("text/plain");
+        req.setRecipient(contact);
+        req.setData(msgText);
+
+        Log.d("*****", contact);
+
+        PalaverApi.execute(req);
     }
 
     public void onAttachmentClicked(View view) {
@@ -222,7 +254,7 @@ public class ChatFragment extends Fragment {
                         Utils.t("clicked attachment");
                         break;
                     case R.id.location:
-                        Utils.t("clicked location");
+                        sendLocation(LocationUtils.latitude, LocationUtils.longitude);
                         break;
                     default:
                         break;
