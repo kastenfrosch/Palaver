@@ -57,6 +57,7 @@ public class ChatFragment extends Fragment {
         }
 
         locationUtils = new LocationUtils(getActivity().getApplicationContext());
+        locationUtils.getLocation();
 
         return view;
     }
@@ -213,9 +214,9 @@ public class ChatFragment extends Fragment {
     }
 
     public void sendLocation() {
-        locationUtils.getLocation();
-        double latitude = LocationUtils.latitude;
-        double longitude = LocationUtils.longitude;
+
+        double latitude = locationUtils.getLatitude();
+        double longitude = locationUtils.getLongitude();
 
         String mapsUrl = "https://www.google.com/maps/search/?api=1&query=";
         mapsUrl = mapsUrl + latitude + "," + longitude;
