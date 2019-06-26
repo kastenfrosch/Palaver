@@ -1,10 +1,12 @@
 package de.uni_due.paluno.se.palaver.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -15,23 +17,24 @@ import de.uni_due.paluno.se.palaver.utils.api.response.DateTimeContainer;
 import de.uni_due.paluno.se.palaver.utils.storage.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
-public class LocationUtils implements LocationListener {
+public class LocationUtils extends ContextAware implements LocationListener {
 
-    private static Context ctx;
     public static double latitude;
     public static double longitude;
+    private Context context;
 
-    public static void initialize(Context _ctx) {
-        ctx = _ctx;
+    public LocationUtils(Context context) {
+        this.context = context;
     }
 
     public void getLocation() {
-        LocationManager locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-
-        String Provider = locationManager.getBestProvider(criteria, true);
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        //Criteria criteria = new Criteria();
+        // TODO: request permissions
+        //String Provider = locationManager.getBestProvider(criteria, true);
+        //LocationProvider gpsProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
         try{
-            locationManager.requestLocationUpdates(Provider, 1000, 0, (LocationListener) this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
         } catch (SecurityException e){
             e.printStackTrace();
         }

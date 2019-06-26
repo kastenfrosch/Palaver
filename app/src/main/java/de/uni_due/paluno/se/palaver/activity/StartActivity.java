@@ -23,6 +23,8 @@ public class StartActivity extends Activity {
 
         ContextAware.initialize(getApplicationContext());
 
+        // TODO: check for permissions (location, see UB062)
+
         if (Storage.I().getUsername() != null && Storage.I().getPassword() != null) {
             ValidateUserApiRequest req = new ValidateUserApiRequest(new MagicCallback<Void>() {
                 @Override

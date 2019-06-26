@@ -2,6 +2,8 @@ package de.uni_due.paluno.se.palaver.activity;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,6 +27,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 import de.uni_due.paluno.se.palaver.custom.ContactListEntry;
+import de.uni_due.paluno.se.palaver.utils.LocationUtils;
 import de.uni_due.paluno.se.palaver.utils.PalaverFirebaseMessagingService;
 import de.uni_due.paluno.se.palaver.utils.PalaverPushMessage;
 import de.uni_due.paluno.se.palaver.utils.UserPrefs;

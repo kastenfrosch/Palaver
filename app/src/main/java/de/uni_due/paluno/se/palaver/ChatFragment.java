@@ -40,6 +40,7 @@ public class ChatFragment extends Fragment {
     private String contact;
     private ViewGroup container;
     private Date lastMessageTime = new Date(1);
+    private LocationUtils locationUtils;
 
     @Nullable
     @Override
@@ -54,6 +55,8 @@ public class ChatFragment extends Fragment {
                 initContact(getArguments().getString("contact"));
             }
         }
+
+        locationUtils = new LocationUtils(getActivity().getApplicationContext());
 
         return view;
     }
@@ -209,14 +212,16 @@ public class ChatFragment extends Fragment {
 
     }
 
-    public void sendLocation(double latitude, double longitude) {
-        latitude = LocationUtils.latitude;
-        longitude = LocationUtils.longitude;
+    public void sendLocation() {
+        locationUtils.getLocation();
+        double latitude = LocationUtils.latitude;
+        double longitude = LocationUtils.longitude;
 
         String mapsUrl = "https://www.google.com/maps/search/?api=1&query=";
         mapsUrl = mapsUrl + latitude + "," + longitude;
+        String explanation = "(press long for google maps position)";
 
-        final String msgText = "Here is my location:\n" + mapsUrl;
+        final String msgText = "Here is my location:\n" + mapsUrl + "\n" + explanation;
         SendMessageApiRequest req = new SendMessageApiRequest(new MagicCallback<DateTimeContainer>() {
             @Override
             public void onSuccess(DateTimeContainer dateTimeContainer) {
@@ -254,7 +259,7 @@ public class ChatFragment extends Fragment {
                         Utils.t("clicked attachment");
                         break;
                     case R.id.location:
-                        sendLocation(LocationUtils.latitude, LocationUtils.longitude);
+                        sendLocation();
                         break;
                     default:
                         break;
