@@ -32,6 +32,7 @@ import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.DeleteFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
 import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnCreateContextMenuListener {
@@ -78,15 +79,30 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                     adapter.add(new ContactListEntry(s, "0"));
                     //TODO: fetch possible new messages after adding the contaact and update the notification accordingly
                 }
+                loadFromStorage();
+            }
+
+            @Override
+            public void onError(ApiResponse r) {
+                loadFromStorage();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                loadFromStorage();
+            }
+
+            private void loadFromStorage() {
+                //we could either be offline or a friend was deleted but we still want to load the existing chat history
+                for(String contact : Storage.I().getChatHistories().keySet()) {
+                    if(adapter.getPositionByName(contact) == -1) {
+                        adapter.add(new ContactListEntry(contact, "0"));
+                    }
+                }
             }
         }));
 
-        //we could either be offline or a friend was deleted but we still want to load the existing chat history
-        for(String contact : Storage.I().getChatHistories().keySet()) {
-            if(adapter.getPositionByName(contact) == -1) {
-                adapter.add(new ContactListEntry(contact, "0"));
-            }
-        }
+
     }
 
 
