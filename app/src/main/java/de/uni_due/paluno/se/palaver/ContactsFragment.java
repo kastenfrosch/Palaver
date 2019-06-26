@@ -119,8 +119,6 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                         refreshContacts();
                     }
                 });
-                req.setUsername(Storage.I().getUsername());
-                req.setPassword(Storage.I().getPassword());
                 req.setFriend(input.getText().toString());
                 PalaverApi.execute(req);
             }
@@ -176,8 +174,6 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                         refreshContacts();
                     }
                 });
-                req.setUsername(Storage.I().getUsername());
-                req.setPassword(Storage.I().getPassword());
                 req.setFriend(cle.getName());
                 PalaverApi.execute(req);
                 return true;
