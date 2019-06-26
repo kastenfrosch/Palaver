@@ -33,6 +33,24 @@ public class Utils extends ContextAware {
         return gson.toJson(obj).getBytes();
     }
 
+    private static final String hex = "0123456789ABCDEF";
+    public static String hexify(byte[] data) {
+        StringBuilder sb = new StringBuilder();
+        for(byte b : data) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    public static byte[] parseHex(String hex) {
+        byte[] b = new byte[hex.length()/2];
+        for(int i=0; i < b.length; i++) {
+            b[i] = Byte.parseByte(hex, 16);
+        }
+        return b;
+    }
+
+
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.GERMANY);
     public static Date parseDateTime(String dt) {
         String cut = dt.replaceAll("\\.\\d+$", "");
