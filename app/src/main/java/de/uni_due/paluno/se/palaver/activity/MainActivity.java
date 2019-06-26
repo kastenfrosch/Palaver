@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
                     .add(R.id.container_contacts, contactsFragment, ContactsFragment.TAG)
                     .add(R.id.container_chat, chatFragment, ChatFragment.TAG)
                     .commit();
-            Utils.t("dual");
+            Utils.t("Dual");
         }
     }
 
@@ -144,6 +144,10 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
 
     public void onSendClicked(View view) {
         ((ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG)).onSendClicked(view);
+    }
+
+    public void onAttachmentClicked(View view) {
+        ((ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG)).onAttachmentClicked(view);
     }
 
     @Override

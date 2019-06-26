@@ -6,9 +6,11 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -205,6 +207,30 @@ public class ChatFragment extends Fragment {
 
         PalaverApi.execute(req);
 
+    }
+
+    public void onAttachmentClicked(View view) {
+
+        final PopupMenu pmenu = new PopupMenu(getActivity(), view);
+        pmenu.getMenuInflater().inflate(R.menu.menu_attachment, pmenu.getMenu());
+
+        pmenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.attachment:
+                        Utils.t("clicked attachment");
+                        break;
+                    case R.id.location:
+                        Utils.t("clicked location");
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
+        pmenu.show();
     }
 
 }

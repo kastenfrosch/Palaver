@@ -22,7 +22,6 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText passwordField;
     private Button sendBtn;
     private Button registerBtn;
-    private Button logoutBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +32,6 @@ public class RegisterActivity extends AppCompatActivity {
         passwordField = findViewById(R.id.register_password);
         sendBtn = findViewById(R.id.register_send_btn);
         registerBtn = findViewById(R.id.register_login_btn);
-        logoutBtn = findViewById(R.id.register_logout_btn);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,15 +73,6 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         });
-
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Storage.getInstance().setUsername(null);
-                Storage.getInstance().setPassword(null);
-            }
-        });
-
 
     }
 }
