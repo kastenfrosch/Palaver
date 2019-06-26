@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
             chat.fetchNewMessages();
         } else {
             contacts.setUnread(message.getSender(), "*");
+            //TODO: show push notification on phone
         }
     }
 
