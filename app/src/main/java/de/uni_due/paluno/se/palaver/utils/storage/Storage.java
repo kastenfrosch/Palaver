@@ -77,6 +77,6 @@ public class Storage extends ContextAware {
     }
 
     public ChatHistory getChatHistory(String contact) {
-        return chatHistories.get(getUsername()).get(contact);
+        return getChatHistories().get(contact);
     }
 }
