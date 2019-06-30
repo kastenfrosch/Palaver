@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -18,6 +19,7 @@ import android.widget.ListView;
 
 import com.example.palaver.R;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,10 @@ import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.AddFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.DeleteFriendApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.request.GetFriendsApiRequest;
+import de.uni_due.paluno.se.palaver.utils.api.request.GetMessagesWithOffsetApiRequest;
 import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
+import de.uni_due.paluno.se.palaver.utils.storage.ChatHistory;
+import de.uni_due.paluno.se.palaver.utils.storage.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class ContactsFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnCreateContextMenuListener {
@@ -69,7 +74,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
             public void onSuccess(List<String> result) {
                 for (String s : result) {
                     adapter.add(new ContactListEntry(s, "0"));
-                    //TODO: fetch possible new messages after adding the contaact and update the notification accordingly
+                    checkForNew(s);
                 }
                 loadFromStorage();
             }
@@ -95,6 +100,28 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
         }));
 
 
+    }
+
+    private void checkForNew(final String contact) {
+        final ChatHistory ch = Storage.I().getChatHistory(contact);
+        if(ch == null) return;
+        ch.sort();
+        final long last = ch.getMessages().size() > 0 ? Utils.parseDateTime(ch.getMessages().get(ch.getMessages().size()-1).getDateTime()).getTime() + 1000 : 0;
+        GetMessagesWithOffsetApiRequest req = new GetMessagesWithOffsetApiRequest(new MagicCallback<List<ChatMessage>>() {
+            @Override
+            public void onSuccess(List<ChatMessage> chatMessages) {
+                if(chatMessages != null && chatMessages.size() > 0) {
+                    Log.d("'*****", "new: " + chatMessages.get(0).getDateTime());
+                    Log.d("*****", (String)chatMessages.get(0).getData());
+                    Log.d("*****", "old: " + Utils.stringifyDateTime(new Date(last)));
+                    Log.d("*****", (String)ch.getMessages().get(ch.getMessages().size()-1).getData());
+                    setUnread(contact, "*");
+                }
+            }
+        });
+        req.setOffset(Utils.stringifyDateTime(new Date(last)));
+        req.setRecipient(contact);
+        PalaverApi.execute(req);
     }
 
 

@@ -22,21 +22,20 @@ public class ChatHistory {
     }
 
     public long getLastMessageTime() {
-        if(this.lastMessageTime == -1) {
-            updateLastMessageTime();
-        }
+        updateLastMessageTime();
+
         return lastMessageTime;
     }
 
     private void updateLastMessageTime() {
-        for(ChatMessage cm : messages) {
+        for (ChatMessage cm : messages) {
             updateLastMessageTime(cm);
         }
     }
 
     private void updateLastMessageTime(ChatMessage cm) {
         long time = Utils.parseDateTime(cm.getDateTime()).getTime();
-        if(this.lastMessageTime < time) {
+        if (this.lastMessageTime < time) {
             this.lastMessageTime = time;
         }
     }

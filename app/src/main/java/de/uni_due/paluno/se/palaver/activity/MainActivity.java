@@ -154,6 +154,12 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     public void onContactSelected(ContactListEntry contact) {
         FragmentManager fm = getSupportFragmentManager();
 
+        ChatFragment cf = (ChatFragment) fm.findFragmentByTag(ChatFragment.TAG);
+        if(cf != null && cf.getActiveContact() != null && cf.getActiveContact().equals(contact)) {
+            return;
+        }
+        if(fm.findFragmentByTag(ContactsFragment.TAG) != null)
+
         if (findViewById(R.id.container_single) != null) { //we're in smartphone mode
             ChatFragment chatFragment = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
             if (chatFragment == null) {

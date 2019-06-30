@@ -54,9 +54,9 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             } else {
                 mainActivity.onFirebasePushMessageReceived(pushMessage);
                 ChatFragment chatFrag = (ChatFragment) mainActivity.getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
-                if(chatFrag != null && chatFrag.getActiveContact() != null && chatFrag.getActiveContact().equals(pushMessage.getSender())) {
-                    return;
-                }
+//                if(chatFrag != null && chatFrag.getActiveContact() != null && chatFrag.getActiveContact().equals(pushMessage.getSender())) {
+//                    return;
+//                }
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(mainActivity, "PUSH_YAY")
                         .setContentTitle("New message")
                         .setSmallIcon(R.drawable.ic_notification)
