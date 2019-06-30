@@ -315,7 +315,6 @@ public class ChatFragment extends Fragment {
         SendMessageApiRequest req = new SendMessageApiRequest(new MagicCallback<DateTimeContainer>() {
             @Override
             public void onSuccess(DateTimeContainer dateTimeContainer) {
-                Utils.t("Message @ " + dateTimeContainer.getDateTime());
                 ChatMessage message = new ChatMessage();
                 message.setSender(Storage.I().getUsername());
                 message.setRecipient(contact);

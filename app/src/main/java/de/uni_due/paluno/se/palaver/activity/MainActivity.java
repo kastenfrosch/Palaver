@@ -2,8 +2,6 @@ package de.uni_due.paluno.se.palaver.activity;
 
 import android.app.ActionBar;
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -87,14 +85,12 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
         if (findViewById(R.id.container_single) != null) {
             fm.beginTransaction().add(R.id.container_single, contactsFragment, ContactsFragment.TAG).commit();
             fm.addOnBackStackChangedListener(this);
-            Utils.t("Single");
         } else {
             ChatFragment chatFragment = new ChatFragment();
             fm.beginTransaction()
                     .add(R.id.container_contacts, contactsFragment, ContactsFragment.TAG)
                     .add(R.id.container_chat, chatFragment, ChatFragment.TAG)
                     .commit();
-            Utils.t("Dual");
         }
     }
 
