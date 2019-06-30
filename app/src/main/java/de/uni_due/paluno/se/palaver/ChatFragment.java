@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.example.palaver.R;
 
+import de.uni_due.paluno.se.palaver.utils.LocationUtils;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.storage.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
@@ -63,6 +64,7 @@ public class ChatFragment extends Fragment {
     private String contact;
     private ViewGroup container;
     private Date lastMessageTime = new Date(1);
+    private LocationUtils locationUtils;
 
     @Nullable
     @Override
@@ -77,6 +79,9 @@ public class ChatFragment extends Fragment {
                 initContact(getArguments().getString("contact"));
             }
         }
+
+        locationUtils = new LocationUtils(getActivity().getApplicationContext());
+        locationUtils.getLocation();
 
         return view;
     }
@@ -240,6 +245,40 @@ public class ChatFragment extends Fragment {
 
     }
 
+    public void sendLocation() {
+
+        double latitude = locationUtils.getLatitude();
+        double longitude = locationUtils.getLongitude();
+
+        String mapsUrl = "https://www.google.com/maps/search/?api=1&query=";
+        mapsUrl = mapsUrl + latitude + "," + longitude;
+        String explanation = "(press long for google maps position)";
+
+        final String msgText = "Here is my location:\n" + mapsUrl + "\n" + explanation;
+        SendMessageApiRequest req = new SendMessageApiRequest(new MagicCallback<DateTimeContainer>() {
+            @Override
+            public void onSuccess(DateTimeContainer dateTimeContainer) {
+                Utils.t("Message @ " + dateTimeContainer.getDateTime());
+                ChatMessage message = new ChatMessage();
+                message.setSender(Storage.I().getUsername());
+                message.setRecipient(contact);
+                message.setMimetype("text/plain");
+                message.setData(msgText);
+                addMessage(message);
+                scrollToBottom();
+            }
+        });
+        req.setUsername(Storage.I().getUsername());
+        req.setPassword(Storage.I().getPassword());
+        req.setMimetype("text/plain");
+        req.setRecipient(contact);
+        req.setData(msgText);
+
+        Log.d("*****", contact);
+
+        PalaverApi.execute(req);
+    }
+
     public void onAttachmentClicked(View view) {
 
         final PopupMenu pmenu = new PopupMenu(getActivity(), view);
@@ -255,7 +294,7 @@ public class ChatFragment extends Fragment {
                         startActivityForResult(Intent.createChooser(intent, "Datei auswählen"), FILE_CHOOSER_REQUEST_CODE);
                         break;
                     case R.id.location:
-                        Utils.t("clicked location");
+                        sendLocation();
                         break;
                     default:
                         break;
