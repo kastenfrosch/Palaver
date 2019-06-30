@@ -98,17 +98,18 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
     }
 
 
-    public void setUnread(String contact, String val) {
-        if(this.adapter.getPositionByName(contact) == -1) {
-            ContactListEntry cle = new ContactListEntry();
-            cle.setUnread(val);
-            cle.setName(contact);
-            this.adapter.add(cle);
-        }
-        this.adapter.getItem(this.adapter.getPositionByName(contact)).setUnread(val);
+    public void setUnread(final String contact, final String val) {
+
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if(adapter.getPositionByName(contact) == -1) {
+                    ContactListEntry cle = new ContactListEntry();
+                    cle.setUnread(val);
+                    cle.setName(contact);
+                    adapter.add(cle);
+                }
+                adapter.getItem(adapter.getPositionByName(contact)).setUnread(val);
                 adapter.notifyDataSetChanged();
             }
         });

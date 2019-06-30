@@ -54,12 +54,12 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             } else {
                 mainActivity.onFirebasePushMessageReceived(pushMessage);
                 ChatFragment chatFrag = (ChatFragment) mainActivity.getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
-                if(chatFrag != null && chatFrag.getActiveContact().equals(pushMessage.getSender())) {
+                if(chatFrag != null && chatFrag.getActiveContact() != null && chatFrag.getActiveContact().equals(pushMessage.getSender())) {
                     return;
                 }
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(mainActivity, "PUSH_YAY")
-                        .setSmallIcon(R.drawable.ic_launcher_foreground)
                         .setContentTitle("New message")
+                        .setSmallIcon(R.drawable.ic_notification)
                         .setContentText(pushMessage.getPreview())
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setAutoCancel(true);
