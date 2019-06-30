@@ -4,8 +4,12 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.arch.lifecycle.ProcessLifecycleOwner;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import com.example.palaver.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -13,16 +17,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.uni_due.paluno.se.palaver.ChatFragment;
 import de.uni_due.paluno.se.palaver.activity.MainActivity;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.UpdatePushTokenApiRequest;
 
-public class PalaverFirebaseMessagingService extends FirebaseMessagingService  implements LifecycleObserver {
+public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
 
     private static MainActivity mainActivity;
     private static List<PalaverPushMessage> queuedMessages = new ArrayList<>();
-    private boolean inBackground = false;
+    private int notifCounter = 0;
 
     public static void setMainActivity(MainActivity mainActivity) {
         PalaverFirebaseMessagingService.mainActivity = mainActivity;
@@ -48,8 +53,21 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService  i
                 queuedMessages.add(pushMessage);
             } else {
                 mainActivity.onFirebasePushMessageReceived(pushMessage);
+                ChatFragment chatFrag = (ChatFragment) mainActivity.getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
+                if(chatFrag != null && chatFrag.getActiveContact().equals(pushMessage.getSender())) {
+                    return;
+                }
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(mainActivity, "PUSH_YAY")
+                        .setSmallIcon(R.drawable.ic_launcher_foreground)
+                        .setContentTitle("New message")
+                        .setContentText(pushMessage.getPreview())
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true);
+                NotificationManagerCompat nm = NotificationManagerCompat.from(mainActivity);
+                nm.notify(notifCounter++, builder.build());
             }
         }
+
 
     }
 
@@ -62,17 +80,6 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService  i
     @Override
     public void onCreate() {
         super.onCreate();
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onAppBackgrounded() {
-        Log.d("*", "app in background now");
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onAppForegrounded() {
-        Log.d("*", "app in foreground now");
     }
 
     public static void updateTokenOnServer(String token) {

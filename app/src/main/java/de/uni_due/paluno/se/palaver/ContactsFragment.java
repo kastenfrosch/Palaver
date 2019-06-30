@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,6 @@ import java.util.Map;
 
 import de.uni_due.paluno.se.palaver.custom.ContactListEntry;
 import de.uni_due.paluno.se.palaver.custom.ContactsArrayAdapter;
-import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
@@ -64,13 +62,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
         return view;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.add("isDirty");
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    private void refreshContacts() {
+    public void refreshContacts() {
         adapter.clear();
         PalaverApi.execute(new GetFriendsApiRequest(new MagicCallback<List<String>>() {
             @Override
@@ -107,6 +99,12 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
 
     public void setUnread(String contact, String val) {
+        if(this.adapter.getPositionByName(contact) == -1) {
+            ContactListEntry cle = new ContactListEntry();
+            cle.setUnread(val);
+            cle.setName(contact);
+            this.adapter.add(cle);
+        }
         this.adapter.getItem(this.adapter.getPositionByName(contact)).setUnread(val);
         getActivity().runOnUiThread(new Runnable() {
             @Override

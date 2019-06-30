@@ -3,6 +3,7 @@ package de.uni_due.paluno.se.palaver.activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,6 +46,7 @@ public class RegisterActivity extends AppCompatActivity {
                         Storage.getInstance().setUsername(username);
                         Storage.getInstance().setPassword(password);
                         Storage.getInstance().persist();
+                        Log.d("******", username + "/" + password);
 
                         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                         startActivity(intent);
@@ -58,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 });
                 req.setUsername(username);
-                req.setPassword(username);
+                req.setPassword(password);
                 PalaverApi.execute(req);
             }
         });

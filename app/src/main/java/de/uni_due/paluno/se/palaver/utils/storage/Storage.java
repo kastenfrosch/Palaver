@@ -18,10 +18,13 @@ public class Storage extends ContextAware {
     private String username;
     private String password;
 
-    private Map<String, ChatHistory> chatHistories;
+    private Map<String, Map<String, ChatHistory>> chatHistories;
 
     private Storage() {
         this.chatHistories = new HashMap<>();
+        if (this.chatHistories.get(getUsername()) == null) {
+            this.chatHistories.put(getUsername(), new HashMap<String, ChatHistory>());
+        }
     }
 
     public void persist() {
@@ -40,7 +43,7 @@ public class Storage extends ContextAware {
     }
 
     public static Storage getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             Gson gson = new GsonBuilder()
                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                     .create();
@@ -67,10 +70,13 @@ public class Storage extends ContextAware {
     }
 
     public Map<String, ChatHistory> getChatHistories() {
-        return chatHistories;
+        if (chatHistories.get(getUsername()) == null) {
+            chatHistories.put(getUsername(), new HashMap<String, ChatHistory>());
+        }
+        return chatHistories.get(getUsername());
     }
 
     public ChatHistory getChatHistory(String contact) {
-        return chatHistories.get(contact);
+        return chatHistories.get(getUsername()).get(contact);
     }
 }

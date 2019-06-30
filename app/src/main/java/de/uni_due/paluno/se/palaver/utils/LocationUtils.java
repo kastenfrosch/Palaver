@@ -19,17 +19,13 @@ import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class LocationUtils extends ContextAware implements LocationListener {
 
-    public static Location location;
-    public static double latitude;
-    public static double longitude;
-    private Context context;
+    public Location location;
+    public double latitude = 0;
+    public double longitude = 0;
 
-    public LocationUtils(Context context) {
-        this.context = context;
-    }
 
     public Location getLocation() {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getCtx().getSystemService(Context.LOCATION_SERVICE);
 
         boolean gps_enabled = false;
         boolean network_enabled = false;
@@ -38,7 +34,7 @@ public class LocationUtils extends ContextAware implements LocationListener {
         network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         Location net_loc = null, gps_loc = null;
 
-        try{
+        try {
 
             if (gps_enabled)
                 gps_loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -62,16 +58,16 @@ public class LocationUtils extends ContextAware implements LocationListener {
                 }
             }
 
-//        String provider = LocationManager.GPS_PROVIDER;
-//        LocationProvider locationProvider = locationManager.getProvider(provider);
-//
+        String provider = LocationManager.GPS_PROVIDER;
+        LocationProvider locationProvider = locationManager.getProvider(provider);
+
 //        if (locationProvider == null) {
 //            provider = LocationManager.NETWORK_PROVIDER;
 //            locationProvider = locationManager.getProvider(provider);
 //        }
 
             //location = locationManager.getLastKnownLocation(provider);
-            //locationManager.requestLocationUpdates(provider, 1000, 0, this);
+            locationManager.requestLocationUpdates(provider, 1000, 0, this);
 
 
             if (location != null) {
@@ -82,27 +78,28 @@ public class LocationUtils extends ContextAware implements LocationListener {
                 Log.i("Location Info", "No location :(");
             }
 
-        } catch (SecurityException e){
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
         return location;
     }
 
     public double getLatitude() {
-        return location.getLatitude();
+        return latitude;
     }
 
     public double getLongitude() {
-        return location.getLongitude();
+        return longitude;
     }
+
 
     @Override
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();
         longitude = location.getLongitude();
 
-        Log.i("Location info: Lat", String.valueOf(latitude));
-        Log.i("Location info: Lng", String.valueOf(longitude));
+//        Log.i("Location info: Lat", String.valueOf(latitude));
+//        Log.i("Location info: Lng", String.valueOf(longitude));
     }
 
     @Override

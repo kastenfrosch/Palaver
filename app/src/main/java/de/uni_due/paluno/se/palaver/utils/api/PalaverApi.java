@@ -1,5 +1,7 @@
 package de.uni_due.paluno.se.palaver.utils.api;
 
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -28,6 +30,7 @@ public class PalaverApi extends ContextAware {
                     @Override
                     public void onResponse(String response) {
                         ApiResponse r = Utils.deserializeApiResponse(response, request.getResponseType());
+                        Log.d("Palaver*****", r.getInfo());
                         if (r.getMsgType() == 0) {
                             request.getCallback().onError(r);
                         } else {

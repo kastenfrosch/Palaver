@@ -7,18 +7,16 @@
     android:paddingStart="60dp"
     android:clipToPadding="false">
 
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/message_body"
+        android:id="@+id/image_body"
         android:background="@drawable/my_message"
         android:textColor="#fff"
         android:padding="10dp"
         android:elevation="2dp"
         android:textSize="18sp"
         android:layout_alignParentEnd="true"
-        android:autoLink="web"
-        android:text="CHANGEME"
         />
 
 </RelativeLayout>

@@ -27,14 +27,13 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 import de.uni_due.paluno.se.palaver.custom.ContactListEntry;
-import de.uni_due.paluno.se.palaver.utils.LocationUtils;
+import de.uni_due.paluno.se.palaver.utils.MagicNetworkCallback;
 import de.uni_due.paluno.se.palaver.utils.PalaverFirebaseMessagingService;
 import de.uni_due.paluno.se.palaver.utils.PalaverPushMessage;
-import de.uni_due.paluno.se.palaver.utils.UserPrefs;
 import de.uni_due.paluno.se.palaver.utils.Utils;
 import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
-public class MainActivity extends AppCompatActivity implements ContactsFragment.OnContactSelectedListener, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements ContactsFragment.OnContactSelectedListener, FragmentManager.OnBackStackChangedListener, MagicNetworkCallback.NetworkStateChangeListener {
 
     @Override
     public void onAttachFragment(Fragment fragment) {
@@ -49,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        MagicNetworkCallback.getInstance().addCallback(this);
 
         //setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     public void onFirebasePushMessageReceived(PalaverPushMessage message) {
         ContactsFragment contacts = (ContactsFragment) getSupportFragmentManager().findFragmentByTag(ContactsFragment.TAG);
         ChatFragment chat = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
-        if (chat != null && chat.isVisible() && chat.getActiveContact().equals(message.getSender())) {
+        if (chat != null && chat.isVisible() && chat.getActiveContact() != null && chat.getActiveContact().equals(message.getSender())) {
             Log.d("*", "equals sender");
             chat.fetchNewMessages();
         } else {
@@ -198,5 +199,31 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     @Override
     public void onBackPressed() {
         getSupportFragmentManager().popBackStack();
+    }
+
+    @Override
+    public void onInternetAvailable() {
+        final ContactsFragment contacts = (ContactsFragment) getSupportFragmentManager().findFragmentByTag(ContactsFragment.TAG);
+        if(contacts != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    contacts.refreshContacts();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onInternetLost() {
+        final ContactsFragment contacts = (ContactsFragment) getSupportFragmentManager().findFragmentByTag(ContactsFragment.TAG);
+        if(contacts != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    contacts.refreshContacts();
+                }
+            });
+        }
     }
 }
