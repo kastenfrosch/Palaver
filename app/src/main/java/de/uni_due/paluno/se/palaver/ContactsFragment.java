@@ -111,11 +111,12 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
             @Override
             public void onSuccess(List<ChatMessage> chatMessages) {
                 if(chatMessages != null && chatMessages.size() > 0) {
-                    Log.d("'*****", "new: " + chatMessages.get(0).getDateTime());
-                    Log.d("*****", (String)chatMessages.get(0).getData());
-                    Log.d("*****", "old: " + Utils.stringifyDateTime(new Date(last)));
-                    Log.d("*****", (String)ch.getMessages().get(ch.getMessages().size()-1).getData());
-                    setUnread(contact, "*");
+                    for(ChatMessage cm : chatMessages) {
+                        if(cm.getSender().equals(Storage.I().getUsername())) {
+                           continue;
+                        }
+                        setUnread(contact, "*");
+                    }
                 }
             }
         });
