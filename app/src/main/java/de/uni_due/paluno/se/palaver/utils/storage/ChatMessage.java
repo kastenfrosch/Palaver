@@ -1,5 +1,9 @@
 package de.uni_due.paluno.se.palaver.utils.storage;
 
+import android.support.annotation.Nullable;
+
+import java.util.Objects;
+
 import de.uni_due.paluno.se.palaver.utils.Utils;
 
 public class ChatMessage implements Comparable<ChatMessage>{
@@ -55,5 +59,22 @@ public class ChatMessage implements Comparable<ChatMessage>{
                 Utils.parseDateTime(this.getDateTime()).getTime(),
                 Utils.parseDateTime(o.getDateTime()).getTime()
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatMessage that = (ChatMessage) o;
+        return sender.equals(that.sender) &&
+                recipient.equals(that.recipient) &&
+                mimetype.equals(that.mimetype) &&
+                data.equals(that.data) &&
+                dateTime.equals(that.dateTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sender, recipient, mimetype, data, dateTime);
     }
 }

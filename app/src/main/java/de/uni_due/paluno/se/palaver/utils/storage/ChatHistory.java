@@ -1,6 +1,9 @@
 package de.uni_due.paluno.se.palaver.utils.storage;
 
+import android.util.Log;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +22,8 @@ public class ChatHistory {
     public void addMessage(ChatMessage cm) {
         this.messages.add(cm);
         updateLastMessageTime(cm);
+        Log.d("PALAVER", "Adding message: " + cm.getData());
+        Log.d("PALAVER", "Trace: " + Arrays.toString(new Throwable().getStackTrace()));
     }
 
     public long getLastMessageTime() {

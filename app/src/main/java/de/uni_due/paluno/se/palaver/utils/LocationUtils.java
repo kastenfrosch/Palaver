@@ -23,6 +23,9 @@ public class LocationUtils extends ContextAware implements LocationListener {
     public double latitude = 0;
     public double longitude = 0;
 
+    public LocationUtils() {
+        getLocation();
+    }
 
     public Location getLocation() {
         LocationManager locationManager = (LocationManager) getCtx().getSystemService(Context.LOCATION_SERVICE);
@@ -97,7 +100,7 @@ public class LocationUtils extends ContextAware implements LocationListener {
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();
         longitude = location.getLongitude();
-
+        this.location = location;
 //        Log.i("Location info: Lat", String.valueOf(latitude));
 //        Log.i("Location info: Lng", String.valueOf(longitude));
     }

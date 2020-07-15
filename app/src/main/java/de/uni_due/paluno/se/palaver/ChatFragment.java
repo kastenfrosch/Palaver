@@ -9,11 +9,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.ImageDecoder;
+import android.location.Location;
 import android.media.projection.MediaProjection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatEditText;
@@ -71,22 +73,26 @@ public class ChatFragment extends Fragment {
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        if(container != null) {
+        if (container != null) {
             this.container = container;
         }
         setHasOptionsMenu(true);
 
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
-        if (savedInstanceState == null) {
-            if (getArguments() != null) {
-                initContact(getArguments().getString("contact"));
-            }
-        }
 
         locationUtils = new LocationUtils();
         locationUtils.getLocation();
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            if (getArguments() != null) {
+                initContact(getArguments().getString("contact"));
+            }
+        }
     }
 
     private void addMessage(ChatMessage m) {
@@ -199,6 +205,7 @@ public class ChatFragment extends Fragment {
         } else {
             chatContainer.addView(rl);
         }
+        scrollToBottom();
     }
 
     public void fetchNewMessages() {
@@ -206,14 +213,17 @@ public class ChatFragment extends Fragment {
             @Override
             public void onSuccess(List<ChatMessage> chatMessages) {
                 if (chatMessages == null) return;
-                ChatHistory ch = Storage.I().getChatHistory(ChatFragment.this.contact);
-                Log.d("Palaver.ChatFragment**", "contact: " + contact + " last " + ch.getLastMessageTime());
+                Log.d("PALAVER", "Adding new messages");
                 for (ChatMessage m : chatMessages) {
-                    addMessage(m);
-                    ch.addMessage(m);
+                    if(!m.getSender().equals(Storage.I().getUsername())) {
+                        addMessage(m);
+                        ChatHistory ch = Storage.I().getChatHistory(contact);
+                        if(ch != null && !ch.getMessages().contains(m)) {
+                            ch.addMessage(m);
+                        }
+                    }
                 }
                 Storage.I().persist();
-                Log.d("Palaver.ChatFragment**", "contact: " + contact + " last " + ch.getLastMessageTime());
                 scrollToBottom();
             }
         });
@@ -230,8 +240,7 @@ public class ChatFragment extends Fragment {
         if (messageContainer != null) {
             messageContainer.removeAllViews();
             Log.d("*", "yield");
-        }
-        else {
+        } else {
             System.out.println("wtf");
         }
 
@@ -255,8 +264,9 @@ public class ChatFragment extends Fragment {
         } else {
             List<ChatMessage> cm = history.getMessages();
             for (ChatMessage m : cm) {
+                Log.d("PALAVER", "Adding old message");
                 addMessage(m);
-        }
+            }
 
             GetMessagesWithOffsetApiRequest req = new GetMessagesWithOffsetApiRequest(new MagicCallback<List<ChatMessage>>() {
                 @Override
@@ -270,7 +280,7 @@ public class ChatFragment extends Fragment {
                 }
             });
             req.setRecipient(contact);
-            req.setOffset(Utils.stringifyDateTime(new Date(history.getLastMessageTime()))+1000);
+            req.setOffset(Utils.stringifyDateTime(new Date(history.getLastMessageTime()+1000)));
             PalaverApi.execute(req);
         }
         this.contact = contact;
@@ -318,9 +328,9 @@ public class ChatFragment extends Fragment {
     }
 
     public void sendLocation() {
-
-        double latitude = locationUtils.getLatitude();
-        double longitude = locationUtils.getLongitude();
+        Location loc = locationUtils.getLocation();
+        double latitude = loc.getLatitude();
+        double longitude = loc.getLongitude();
 
         String mapsUrl = "https://www.google.com/maps/search/?api=1&query=";
         mapsUrl = mapsUrl + latitude + "," + longitude;
