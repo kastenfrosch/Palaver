@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements ContactsFragment.
     }
 
     public void onFirebasePushMessageReceived(PalaverPushMessage message) {
+        Log.d("PALAVER", "new push message");
         ContactsFragment contacts = (ContactsFragment) getSupportFragmentManager().findFragmentByTag(ContactsFragment.TAG);
         ChatFragment chat = (ChatFragment) getSupportFragmentManager().findFragmentByTag(ChatFragment.TAG);
         if (chat != null && chat.isVisible() && chat.getActiveContact() != null && chat.getActiveContact().equals(message.getSender())) {

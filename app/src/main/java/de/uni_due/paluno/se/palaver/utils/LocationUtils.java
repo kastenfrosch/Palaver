@@ -10,6 +10,10 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.FutureTask;
+
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
 import de.uni_due.paluno.se.palaver.utils.api.request.SendMessageApiRequest;
@@ -19,15 +23,15 @@ import de.uni_due.paluno.se.palaver.utils.storage.Storage;
 
 public class LocationUtils extends ContextAware implements LocationListener {
 
-    public Location location;
-    public double latitude = 0;
-    public double longitude = 0;
+    private Location location;
+    private List<String> enabledProviders = new ArrayList<>();
+
 
     public LocationUtils() {
-        getLocation();
+        register();
     }
 
-    public Location getLocation() {
+    /*public Location getLocation() {
         LocationManager locationManager = (LocationManager) getCtx().getSystemService(Context.LOCATION_SERVICE);
 
         boolean gps_enabled = false;
@@ -85,21 +89,18 @@ public class LocationUtils extends ContextAware implements LocationListener {
             e.printStackTrace();
         }
         return location;
-    }
+    }*/
 
-    public double getLatitude() {
-        return latitude;
-    }
 
-    public double getLongitude() {
-        return longitude;
+    public Location getLocation() throws Exception {
+        if(this.location == null) {
+            throw new Exception("no location");
+        }
+        return this.location;
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
         this.location = location;
 //        Log.i("Location info: Lat", String.valueOf(latitude));
 //        Log.i("Location info: Lng", String.valueOf(longitude));
@@ -112,13 +113,35 @@ public class LocationUtils extends ContextAware implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        register();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        LocationManager locationManager = (LocationManager) getCtx().getSystemService(Context.LOCATION_SERVICE);
+        if(this.enabledProviders.contains(provider)) {
+            locationManager.removeUpdates(this);
+            register();
+        }
     }
+
+    private void register() {
+        LocationManager locationManager = (LocationManager) getCtx().getSystemService(Context.LOCATION_SERVICE);
+        locationManager.removeUpdates(this);
+        try {
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                this.enabledProviders.add(LocationManager.GPS_PROVIDER);
+            }
+            if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                this.enabledProviders.add(LocationManager.NETWORK_PROVIDER);
+            }
+        } catch(SecurityException ex) {
+            Utils.t("Location permissions have not been granted.");
+        }
+    }
+
 
 
 }

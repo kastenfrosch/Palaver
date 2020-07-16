@@ -37,6 +37,7 @@ import com.example.palaver.R;
 
 import de.uni_due.paluno.se.palaver.utils.LocationUtils;
 import de.uni_due.paluno.se.palaver.utils.Utils;
+import de.uni_due.paluno.se.palaver.utils.api.response.ApiResponse;
 import de.uni_due.paluno.se.palaver.utils.storage.ChatMessage;
 import de.uni_due.paluno.se.palaver.utils.api.MagicCallback;
 import de.uni_due.paluno.se.palaver.utils.api.PalaverApi;
@@ -81,7 +82,6 @@ public class ChatFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         locationUtils = new LocationUtils();
-        locationUtils.getLocation();
 
         return view;
     }
@@ -96,6 +96,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void addMessage(ChatMessage m) {
+        if(getActivity() == null) return; //TODO check this out
         LayoutInflater inflater = getActivity().getLayoutInflater();
         RelativeLayout rl;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.GERMANY); //the SDF still shits itself if I add optional ms ( [.SSS] )
@@ -311,7 +312,9 @@ public class ChatFragment extends Fragment {
                 message.setRecipient(contact);
                 message.setMimetype("text/plain");
                 message.setData(msgText);
+                message.setDateTime(dateTimeContainer.getDateTime());
                 addMessage(message);
+                Storage.I().getChatHistory(contact).addMessage(message);
                 scrollToBottom();
             }
         });
@@ -328,7 +331,13 @@ public class ChatFragment extends Fragment {
     }
 
     public void sendLocation() {
-        Location loc = locationUtils.getLocation();
+        Location loc;
+        try {
+            loc = locationUtils.getLocation();
+        } catch(Exception ex) {
+            Utils.t("No location");
+            return;
+        }
         double latitude = loc.getLatitude();
         double longitude = loc.getLongitude();
 
@@ -433,6 +442,11 @@ public class ChatFragment extends Fragment {
                                 cm.setRecipient(contact);
                                 cm.setSender(Storage.I().getUsername());
                                 addMessage(cm);
+                            }
+
+                            @Override
+                            public void onError(Throwable t) {
+                                Utils.t("Fehler: Palaver hat die Datei abgelehnt (500). Datei ist evtl. zu groß.");
                             }
                         });
                         req.setData(dataToSend);

@@ -39,14 +39,13 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
     }
+    
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        Log.d("*", "" + remoteMessage.getMessageType());
         if(remoteMessage.getData().size() > 0) {
             PalaverPushMessage pushMessage = new PalaverPushMessage();
-            Log.d("*", remoteMessage.getData().toString());
             pushMessage.setPreview(remoteMessage.getData().get("preview"));
             pushMessage.setSender(remoteMessage.getData().get("sender"));
             if(mainActivity == null) {
