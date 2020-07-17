@@ -354,6 +354,8 @@ public class ChatFragment extends Fragment {
                 message.setMimetype("text/plain");
                 message.setData(msgText);
                 addMessage(message);
+                message.setDateTime(dateTimeContainer.getDateTime());
+                Storage.I().getChatHistory(contact).addMessage(message);
                 scrollToBottom();
             }
         });

@@ -48,6 +48,7 @@ public class PalaverFirebaseMessagingService extends FirebaseMessagingService {
             PalaverPushMessage pushMessage = new PalaverPushMessage();
             pushMessage.setPreview(remoteMessage.getData().get("preview"));
             pushMessage.setSender(remoteMessage.getData().get("sender"));
+            Log.d("Palaver", "Message received!");
             if(mainActivity == null) {
                 queuedMessages.add(pushMessage);
             } else {
